@@ -1,4 +1,4 @@
-package com.example.pollycall.local
+package com.example.pollycall.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert

@@ -1,8 +1,8 @@
 package com.example.pollycall.di
 
 import android.content.Context
-import com.example.pollycall.local.CallDao
-import com.example.pollycall.local.CallDatabase
+import com.example.pollycall.data.local.CallDao
+import com.example.pollycall.data.local.CallDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -24,5 +24,5 @@ class DatabaseModule {
     fun provideCallDao(callDatabase: CallDatabase): CallDao {
         return callDatabase.callDao()
     }
-    
+
 }

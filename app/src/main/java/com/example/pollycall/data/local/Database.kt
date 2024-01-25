@@ -1,4 +1,4 @@
-package com.example.pollycall.local
+package com.example.pollycall.data.local
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider.NewInstanceFactory.Companion.instance
@@ -17,8 +17,8 @@ abstract class CallDatabase : RoomDatabase() {
         private var instance: CallDatabase? = null
 
         fun getInstance(context: Context): CallDatabase {
-            return instance?: synchronized(this) {
-                instance?: buildDatabase(context).also { instance = it }
+            return instance ?: synchronized(this) {
+                instance ?: buildDatabase(context).also { instance = it }
             }
         }
 
