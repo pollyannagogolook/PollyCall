@@ -1,6 +1,6 @@
 package com.example.pollycall.data
 
-sealed class CallResponse<T>(
+sealed class CallResponse<out T>(
     val data: T? = null,
     val message: String? = null
 ){

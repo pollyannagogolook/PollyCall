@@ -2,6 +2,14 @@ package com.example.pollycall.data
 
 import com.example.pollycall.data.local.CallDao
 import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,57 +34,69 @@ class PollyCallRepositoryImpl @Inject constructor(
         private const val UNKNOWN_ERROR = "Unknown error"
     }
 
-    override suspend fun getCallData(number: String): CallResponse<Call?> {
-        // search call data in local database
-        val localCallData = callDao.getCallCache(number).data
+    override suspend fun getCallData(number: String): Flow<CallResponse<Call?>> = flow {
 
-        // if there is no call data in local database, get call data from remote server
-        if (localCallData != null) {
-            return CallResponse.Success(localCallData)
-        } else {
-            try {
 
-                val response = remoteDataSource.getCallData()
+            // search call data in local database
+            val localCallData = callDao.getCallCache(number).data
 
-                response.data?.let { remoteCallData ->
+            // if there is no call data in local database, get call data from remote server
+            if (localCallData != null) {
+                emit(CallResponse.Success(localCallData))
+            } else {
+                try {
 
-                    if (response is CallResponse.Success) {
-                        callDao.saveCallCache(remoteCallData)
-                    } else if (response is CallResponse.Error) {
-                        return CallResponse.Error(response.message ?: UNKNOWN_ERROR)
+                    val response = remoteDataSource.getCallData()
+
+                    response.data?.let { remoteCallData ->
+
+                        if (response is CallResponse.Success) {
+                            callDao.saveCallCache(remoteCallData)
+                        } else if (response is CallResponse.Error) {
+                            emit(CallResponse.Error(response.message ?: UNKNOWN_ERROR))
+
+                        }
                     }
+
+                } catch (e: Exception) {
+                   emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
+                }
+
+
+                // all call data should be search in local database
+                emit(callDao.getCallCache(number))
+
+
+            }
+        }.flowOn(Dispatchers.IO)
+
+
+
+
+        override suspend fun uploadCallData(call: Call): Flow<CallResponse<Call>> = flow {
+
+            try {
+                val response = remoteDataSource.uploadCallData(call)
+
+                if (response is CallResponse.Success) {
+
+                    // when upload data successfully, save the data to local database
+                    callDao.saveCallCache(call)
+                    emit(CallResponse.Success(call))
+                } else {
+                    val errorResponse = response as CallResponse.Error
+                    emit(CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR))
                 }
 
             } catch (e: Exception) {
-                return CallResponse.Error(e.message ?: UNKNOWN_ERROR)
+                emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
             }
 
-        }
 
-        // all call data should be search in local database
-        return callDao.getCallCache(number)
-    }
+        }.flowOn(Dispatchers.IO)
 
 
-    override suspend fun uploadCallData(call: Call): CallResponse<Call> {
-
-        return try {
-            val response = remoteDataSource.uploadCallData(call)
-
-            if (response is CallResponse.Success) {
-
-                // when upload data successfully, save the data to local database
-                callDao.saveCallCache(call)
-                CallResponse.Success(call)
-            } else {
-                val errorResponse = response as CallResponse.Error
-                CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR)
-            }
-
-        } catch (e: Exception) {
-            CallResponse.Error(e.message ?: UNKNOWN_ERROR)
-        }
-
-
+    override fun shouldBlockCall(number: String): Boolean{
+        return false
     }
 }

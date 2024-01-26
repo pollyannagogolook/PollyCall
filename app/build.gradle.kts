@@ -68,10 +68,11 @@ dependencies {
     implementation("com.google.ar.sceneform:filament-android:1.17.1")
     implementation("androidx.compose.material3:material3:1.1.2")
 
+
     // hilt
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
-    implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
+    implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
 
     // moshi
