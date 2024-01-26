@@ -2,6 +2,7 @@ package com.example.pollycall.data.remote
 
 import android.util.Log
 import com.example.pollycall.data.Call
+import com.example.pollycall.data.CallResponse
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -15,13 +16,13 @@ class PollyCallRemoteDataSource @Inject constructor(private val service: ApiServ
     }
 
 
-    suspend fun getCallData(): Response<List<Call>>{
+    suspend fun getCallData():CallResponse<Call>{
         // get the call data from pollCall server
-        return service.searchCall()
+        return service.getCall()
     }
 
-    suspend fun uploadCallData(call: Call){
+    suspend fun uploadCallData(call: Call): CallResponse<String>{
         // upload the call data to pollyCall server
-        service.uploadCall(call)
+        return service.uploadCall(call)
     }
 }

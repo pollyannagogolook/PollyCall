@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.pollycall.data.Call
+import com.example.pollycall.data.CallResponse
 
 @Dao
 interface CallDao {
@@ -12,6 +13,6 @@ interface CallDao {
     fun saveCallCache(call: Call)
 
     @Query("SELECT * FROM call WHERE number = :number")
-    fun getCallCache(number: String): Call?
+    fun getCallCache(number: String): CallResponse<Call?>
 
 }
