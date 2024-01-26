@@ -6,7 +6,7 @@ import androidx.activity.compose.setContent
 
 import androidx.databinding.DataBindingUtil
 import com.example.pollycall.databinding.ActivityMainBinding
-import com.example.pollycall.ui.theme.PollyCallTheme
+
 
 class MainActivity : ComponentActivity() {
     lateinit var bindiing: ActivityMainBinding
