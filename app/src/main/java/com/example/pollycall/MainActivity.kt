@@ -1,20 +1,34 @@
 package com.example.pollycall
 
+import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.content.ComponentName
+import android.content.Intent
+import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.lifecycleScope
+import com.example.pollycall.callDetect.ForegroundService
 import com.example.pollycall.databinding.ActivityMainBinding
+import kotlinx.coroutines.launch
 
 
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var foregroundService: ForegroundService
+    private lateinit var serviceConnection: ServiceConnection
     private val viewModel by viewModels<MainViewModel>()
-    companion object{
+    private var isBound = false
+
+    companion object {
         const val CHANNEL_ID = "polly_call_channel"
     }
 
@@ -22,13 +36,36 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         createNotificationChannel()
 
 
+
+        lifecycleScope.launch {
+            viewModel.inComingNumberFlow.collect { phoneNumber ->
+                viewModel.getPhoneInfo(phoneNumber)
+            }
+        }
+
+        lifecycleScope.launch {
+            viewModel.phoneInfoFlow.collect{phoneInfo ->
+               connectToService(phoneInfo)
+
+            }
+        }
+
     }
 
-    private fun createNotificationChannel(){
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+    override fun onStart() {
+        super.onStart()
+
+        Intent(this, ForegroundService::class.java).also { intent ->
+            bindService(intent, serviceConnection, BIND_AUTO_CREATE)
+        }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,
                 "Polly Call Channel",
@@ -43,7 +80,24 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun sendNotification(){
+    private fun connectToService(data: String) {
+        serviceConnection = object : ServiceConnection {
+            @RequiresApi(Build.VERSION_CODES.O)
+            override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+                val binder = service as ForegroundService.LocalBinder
+
+                foregroundService = binder.getService()
+                isBound = true
+
+                // show notifications in the foreground
+                foregroundService.showNotification(data)
+            }
+
+            override fun onServiceDisconnected(name: ComponentName?) {
+                isBound = false
+            }
+        }
+
 
     }
 }

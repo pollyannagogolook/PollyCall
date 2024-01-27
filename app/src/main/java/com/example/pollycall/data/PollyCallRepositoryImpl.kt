@@ -5,6 +5,8 @@ import com.example.pollycall.data.remote.PollyCallRemoteDataSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -34,58 +36,32 @@ class PollyCallRepositoryImpl @Inject constructor(
         private const val UNKNOWN_ERROR = "Unknown error"
     }
 
-    override suspend fun getCallData(number: String): Flow<CallResponse<Call?>> = flow {
+    private val phoneNumberFlow = MutableStateFlow<String>("")
 
+    override suspend fun searchScreenCall(number: String): Flow<CallResponse<Call?>> = flow {
 
-            // search call data in local database
-            val localCallData = callDao.getCallCache(number).data
+        // save number to flow
+        phoneNumberFlow.value = number
 
-            // if there is no call data in local database, get call data from remote server
-            if (localCallData != null) {
-                emit(CallResponse.Success(localCallData))
-            } else {
-                try {
+        // search call data in local database
+        val localCallData = callDao.getCallCache(number).data
 
-                    val response = remoteDataSource.getCallData()
-
-                    response.data?.let { remoteCallData ->
-
-                        if (response is CallResponse.Success) {
-                            callDao.saveCallCache(remoteCallData)
-                        } else if (response is CallResponse.Error) {
-                            emit(CallResponse.Error(response.message ?: UNKNOWN_ERROR))
-
-                        }
-                    }
-
-                } catch (e: Exception) {
-                   emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
-                }
-
-
-                // all call data should be search in local database
-                emit(callDao.getCallCache(number))
-
-
-            }
-        }.flowOn(Dispatchers.IO)
-
-
-
-
-        override suspend fun uploadCallData(call: Call): Flow<CallResponse<Call>> = flow {
-
+        // if there is no call data in local database, get call data from remote server
+        if (localCallData != null) {
+            emit(CallResponse.Success(localCallData))
+        } else {
             try {
-                val response = remoteDataSource.uploadCallData(call)
 
-                if (response is CallResponse.Success) {
+                val response = remoteDataSource.getCallData()
 
-                    // when upload data successfully, save the data to local database
-                    callDao.saveCallCache(call)
-                    emit(CallResponse.Success(call))
-                } else {
-                    val errorResponse = response as CallResponse.Error
-                    emit(CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR))
+                response.data?.let { remoteCallData ->
+
+                    if (response is CallResponse.Success) {
+                        callDao.saveCallCache(remoteCallData)
+                    } else if (response is CallResponse.Error) {
+                        emit(CallResponse.Error(response.message ?: UNKNOWN_ERROR))
+
+                    }
                 }
 
             } catch (e: Exception) {
@@ -93,10 +69,40 @@ class PollyCallRepositoryImpl @Inject constructor(
             }
 
 
-        }.flowOn(Dispatchers.IO)
+            // all call data should be search in local database
+            emit(callDao.getCallCache(number))
 
 
-    override fun shouldBlockCall(number: String): Boolean{
+        }
+    }.flowOn(Dispatchers.IO)
+
+    // get phone number from flow, pass to viewModel
+    override fun getScreenCall(): StateFlow<String> = phoneNumberFlow
+
+    override suspend fun uploadCallData(call: Call): Flow<CallResponse<Call>> = flow {
+
+        try {
+            val response = remoteDataSource.uploadCallData(call)
+
+            if (response is CallResponse.Success) {
+
+                // when upload data successfully, save the data to local database
+                callDao.saveCallCache(call)
+                emit(CallResponse.Success(call))
+            } else {
+                val errorResponse = response as CallResponse.Error
+                emit(CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR))
+            }
+
+        } catch (e: Exception) {
+            emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
+        }
+
+
+    }.flowOn(Dispatchers.IO)
+
+
+    override fun shouldBlockCall(number: String): Boolean {
         return false
     }
 }

@@ -1,7 +1,5 @@
 package com.example.pollycall.callDetect
 
-import android.content.Intent
-import android.os.IBinder
 import android.telecom.Call
 import android.telecom.CallScreeningService
 import com.example.pollycall.data.PollyCallRepository
@@ -14,6 +12,7 @@ import javax.inject.Inject
 /**
  * Created by Pollyanna Wu on 2024/1/26
  *
+ * This class is used to detect incoming call
  * Currently, all calls are allowed
  */
 @AndroidEntryPoint
@@ -27,13 +26,9 @@ class CallScreeningService @Inject constructor(
         // get inComing Number
         val inComingNumber = callDetails.handle.schemeSpecificPart
 
-        // search call data in data layer
         serviceScope.launch {
-            repository.getCallData(inComingNumber)
+            // search call data in data layer
+            repository.searchScreenCall(inComingNumber)
         }
-    }
-
-    override fun onBind(intent: Intent?): IBinder? {
-        return super.onBind(intent)
     }
 }
