@@ -1,14 +1,13 @@
 package com.example.pollycall.callDetect
 
+import android.content.Intent
+import android.os.IBinder
 import android.telecom.Call
 import android.telecom.CallScreeningService
-import androidx.lifecycle.LifecycleCoroutineScope
-import com.example.pollycall.MainViewModel
 import com.example.pollycall.data.PollyCallRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -18,7 +17,7 @@ import javax.inject.Inject
  * Currently, all calls are allowed
  */
 @AndroidEntryPoint
-class ScreeningService @Inject constructor(
+class CallScreeningService @Inject constructor(
     private val repository: PollyCallRepository
 ) : CallScreeningService() {
 
@@ -31,7 +30,10 @@ class ScreeningService @Inject constructor(
         // search call data in data layer
         serviceScope.launch {
             repository.getCallData(inComingNumber)
-
         }
+    }
+
+    override fun onBind(intent: Intent?): IBinder? {
+        return super.onBind(intent)
     }
 }
