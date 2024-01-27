@@ -95,6 +95,9 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     kapt ("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+
+    // lottie
+    implementation ("com.airbnb.android:lottie:4.2.2")
 }
 // Allow references to generated code
 kapt {

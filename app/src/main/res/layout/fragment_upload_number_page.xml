@@ -1,91 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".uploadnumber.UploadNumberPage">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/phone_number_text_input_layout"
+    <data>
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/standard_dimen"
-        android:layout_marginTop="@dimen/standard_dimen"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phone_number_text_input_edit_text"
+        android:layout_height="match_parent"
+        tools:context=".uploadnumber.UploadNumberPage">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phone_number_text_input_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/input_strange_phone_hint"
-            android:textColorHint="@color/grey"
-            android:inputType="phone"
-            />
-    </com.google.android.material.textfield.TextInputLayout>
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/phone_owner_text_input_layout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="@dimen/standard_dimen"
-        app:layout_constraintTop_toBottomOf="@id/phone_number_text_input_layout"
-        app:layout_constraintStart_toStartOf="@id/phone_number_text_input_layout"
-        app:layout_constraintEnd_toEndOf="@id/phone_number_text_input_layout"
-        >
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/phone_number_owner_input_edit_text"
-            android:layout_width="match_parent"
+            android:layout_margin="@dimen/standard_dimen"
+            android:layout_marginTop="@dimen/standard_dimen"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phone_number_text_input_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/input_strange_phone_hint"
+                android:textColorHint="@color/grey"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/phone_owner_text_input_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/standard_dimen"
+            app:layout_constraintTop_toBottomOf="@id/phone_number_text_input_layout"
+            app:layout_constraintStart_toStartOf="@id/phone_number_text_input_layout"
+            app:layout_constraintEnd_toEndOf="@id/phone_number_text_input_layout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/phone_number_owner_input_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColorHint="@color/grey"
+                android:hint="@string/phone_owner_hint"
+                android:inputType="phone" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <TextView
+            android:id="@+id/is_scam_title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:textColorHint="@color/grey"
-            android:hint="@string/phone_owner_hint"
-            android:inputType="phone"
+            android:text="@string/is_scam_hint"
+
+            android:layout_marginTop="@dimen/standard_dimen"
+            app:layout_constraintTop_toBottomOf="@id/phone_owner_text_input_layout"
+            app:layout_constraintStart_toStartOf="@id/phone_owner_text_input_layout"
+            app:layout_constraintEnd_toEndOf="@id/phone_owner_text_input_layout" />
+
+        <RadioGroup
+            android:id="@+id/is_scam_radio_group"
+            android:layout_margin="@dimen/standard_dimen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/is_scam_title"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/is_scam_yes"
+                android:text="@string/true_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/is_scam_no"
+                android:text="@string/no_value"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RadioGroup>
+
+        <Button
+            android:id="@+id/submit_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/submit_btn"
+            android:layout_margin="@dimen/standard_dimen"
+            android:textColor="@color/background"
+            android:background="@color/primary"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/success_animation"
+            app:lottie_loop="false"
+            app:lottie_autoPlay="false"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lottie_rawRes="@raw/success"
             />
-    </com.google.android.material.textfield.TextInputLayout>
-    <TextView
-        android:id="@+id/is_scam_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:textColorHint="@color/grey"
-        android:text="@string/is_scam_hint"
-
-        android:layout_marginTop="@dimen/standard_dimen"
-        app:layout_constraintTop_toBottomOf="@id/phone_owner_text_input_layout"
-        app:layout_constraintStart_toStartOf="@id/phone_owner_text_input_layout"
-        app:layout_constraintEnd_toEndOf="@id/phone_owner_text_input_layout"
-        />
-    <RadioGroup
-        android:layout_margin="@dimen/standard_dimen"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/is_scam_title"
-        android:orientation="horizontal"
-        >
-        <RadioButton
-            android:id="@+id/is_scam_yes"
-            android:text="@string/true_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-        <RadioButton
-            android:id="@+id/is_scam_no"
-            android:text="@string/no_value"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
-    </RadioGroup>
-    <Button
-        android:id="@+id/submit_button"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="@string/submit_btn"
-        android:layout_margin="@dimen/standard_dimen"
-        android:textColor="@color/background"
-        android:background="@color/primary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/fail_animation"
+            app:lottie_loop="false"
+            app:lottie_autoPlay="false"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:lottie_rawRes="@raw/error_lottie"
+            />
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
