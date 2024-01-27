@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -44,23 +45,20 @@ class PollyCallRepositoryImpl @Inject constructor(
         phoneNumberFlow.value = number
 
         // search call data in local database
-        val localCallData = callDao.getCallCache(number).data
+        val localCallData = callDao.getCallCache(number).first()
 
         // if there is no call data in local database, get call data from remote server
         if (localCallData != null) {
             emit(CallResponse.Success(localCallData))
         } else {
             try {
-
                 val response = remoteDataSource.getCallData()
-
                 response.data?.let { remoteCallData ->
 
                     if (response is CallResponse.Success) {
                         callDao.saveCallCache(remoteCallData)
                     } else if (response is CallResponse.Error) {
                         emit(CallResponse.Error(response.message ?: UNKNOWN_ERROR))
-
                     }
                 }
 
@@ -68,11 +66,9 @@ class PollyCallRepositoryImpl @Inject constructor(
                 emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
             }
 
-
             // all call data should be search in local database
-            emit(callDao.getCallCache(number))
-
-
+            val callData = callDao.getCallCache(number).first()
+            emit(CallResponse.Success(callData))
         }
     }.flowOn(Dispatchers.IO)
 

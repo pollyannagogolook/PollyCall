@@ -6,6 +6,7 @@ import com.example.pollycall.data.PollyCallRepositoryImpl
 import com.example.pollycall.data.local.CallDao
 import com.example.pollycall.data.local.CallDatabase
 import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,14 +24,10 @@ class DatabaseModule {
         return CallDatabase.getInstance(context)
     }
 
+    @Singleton
     @Provides
     fun provideCallDao(callDatabase: CallDatabase): CallDao {
         return callDatabase.callDao()
-    }
-
-    @Provides
-    fun provideCallRepository(callDao: CallDao, remoteDataSource: PollyCallRemoteDataSource): PollyCallRepository{
-        return PollyCallRepositoryImpl(remoteDataSource, callDao)
     }
 
 }

@@ -9,18 +9,19 @@ import android.content.ServiceConnection
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
-import androidx.activity.ComponentActivity
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import com.example.pollycall.callDetect.ForegroundService
+import androidx.navigation.fragment.NavHostFragment
+import com.example.pollycall.call_detect.ForegroundService
 import com.example.pollycall.databinding.ActivityMainBinding
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var foregroundService: ForegroundService
@@ -39,8 +40,6 @@ class MainActivity : AppCompatActivity() {
 
         createNotificationChannel()
 
-
-
         lifecycleScope.launch {
             viewModel.inComingNumberFlow.collect { phoneNumber ->
                 viewModel.getPhoneInfo(phoneNumber)
@@ -50,7 +49,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             viewModel.phoneInfoFlow.collect{phoneInfo ->
                connectToService(phoneInfo)
-
             }
         }
 

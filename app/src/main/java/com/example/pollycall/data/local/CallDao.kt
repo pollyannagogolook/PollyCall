@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.example.pollycall.data.Call
 import com.example.pollycall.data.CallResponse
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CallDao {
@@ -13,6 +14,6 @@ interface CallDao {
     fun saveCallCache(call: Call)
 
     @Query("SELECT * FROM call WHERE number = :number")
-    fun getCallCache(number: String): CallResponse<Call?>
+    fun getCallCache(number: String): Flow<Call?>
 
 }
