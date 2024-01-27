@@ -20,5 +20,5 @@ interface ApiService {
         @Field("number")number: String,
         @Field("owner")owner: String,
         @Field("is_scam")isScam: Boolean
-    ): String
+    ): Call
 }

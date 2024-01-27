@@ -11,6 +11,7 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class Call(
     @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name = "number")
     val number: String,
 
     @ColumnInfo(name = "owner")

@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import javax.inject.Singleton
 
 @Module
@@ -39,7 +40,9 @@ class RemoteModule {
     @Provides
     @Singleton
     fun provideMoshi(): Moshi{
-        return Moshi.Builder().build()
+        return  Moshi.Builder()
+            .addLast(KotlinJsonAdapterFactory())
+            .build()
     }
 
     @Provides

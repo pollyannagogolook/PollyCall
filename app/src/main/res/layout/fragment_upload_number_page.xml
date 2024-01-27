@@ -46,7 +46,9 @@
                 android:layout_height="wrap_content"
                 android:textColorHint="@color/grey"
                 android:hint="@string/phone_owner_hint"
-                android:inputType="phone" />
+                android:inputType="textAutoComplete"
+                android:imeOptions="actionDone"
+                />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView

@@ -39,15 +39,19 @@ class UploadNumberPage : Fragment() {
 
         lifecycleScope.launch {
             viewModel.uploadResponseFlow.collect {
-                delay(1500)
+
                 when (it) {
                     is CallResponse.Loading -> {
-
                     }
 
                     is CallResponse.Success -> {
                         binding.successAnimation.visibility = View.VISIBLE
                         binding.successAnimation.playAnimation()
+
+                        // clear the input
+                        binding.phoneNumberTextInputEditText.text?.clear()
+                        binding.phoneNumberOwnerInputEditText.text?.clear()
+                        binding.isScamRadioGroup.clearCheck()
                     }
 
                     is CallResponse.Error -> {
@@ -57,8 +61,9 @@ class UploadNumberPage : Fragment() {
 
 
                 }
-                binding.successAnimation.visibility = View.VISIBLE
-                binding.failAnimation.visibility = View.VISIBLE
+                delay(1500)
+                binding.successAnimation.visibility = View.INVISIBLE
+                binding.failAnimation.visibility = View.INVISIBLE
                 binding.submitButton.isClickable = true
             }
         }

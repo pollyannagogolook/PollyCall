@@ -23,7 +23,7 @@ class PollyCallRemoteDataSource @Inject constructor(private val service: ApiServ
 
     }
 
-    suspend fun uploadCallData(call: Call): CallResponse<String>{
+    suspend fun uploadCallData(call: Call): CallResponse<Call>{
         // upload the call data to pollyCall server
         return try {
             CallResponse.Success(service.uploadCall(call.number, call.owner, call.isScam))
