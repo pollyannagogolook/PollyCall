@@ -41,6 +41,7 @@ Because the API is not stable, before test this app, please call the api first t
 
 ### Upload the strange number
 `POST http://3.25.150.64:8000/catalog/number/create/`
+
 payload: 
 ```
 {
