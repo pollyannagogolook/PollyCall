@@ -6,10 +6,10 @@ Currently, user can upload the strange number successfully. However, the app is 
 ## Use Path
 
 ### Upload the strange number to the server
-![upload_strange_number.png](..%2F..%2F..%2F..%2F..%2Fvar%2Ffolders%2Fbm%2Fjn8r1j857pgcyqwp_pyxwk400000gq%2FT%2FTemporaryItems%2FNSIRD_screencaptureui_8GBHyh%2F%E6%88%AA%E5%9C%96%202024-01-28%20%E5%87%8C%E6%99%A81.05.53.png)
+<img width="743" alt="截圖 2024-01-28 上午9 51 44" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/c904edf5-406f-45bc-87dc-370454cc30e8">
 
 ### get information of the strange number from the server when the phone is ringing
-![get_number_info.png](..%2F..%2F..%2F..%2F..%2Fvar%2Ffolders%2Fbm%2Fjn8r1j857pgcyqwp_pyxwk400000gq%2FT%2FTemporaryItems%2FNSIRD_screencaptureui_TSg5wy%2F%E6%88%AA%E5%9C%96%202024-01-28%20%E4%B8%8A%E5%8D%889.32.13.png)
+<img width="629" alt="screenshot_polly_call.png" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/f809d95e-5e99-4f84-9af7-7005b2fb55a2">
 
 
 
@@ -19,7 +19,8 @@ Currently, user can upload the strange number successfully. However, the app is 
 - [x] Notifications to display the caller's identity
 - [x] UI to display the form to report the caller's identity
 
-![screenshot_polly_call.png](..%2F..%2F..%2F..%2F..%2Fvar%2Ffolders%2Fbm%2Fjn8r1j857pgcyqwp_pyxwk400000gq%2FT%2FTemporaryItems%2FNSIRD_screencaptureui_4KeRR8%2F%E6%88%AA%E5%9C%96%202024-01-28%20%E5%87%8C%E6%99%A812.04.57.png)
+
+
 
 ## Skills
 - CallScreeningService
@@ -36,10 +37,10 @@ Currently, user can upload the strange number successfully. However, the app is 
 Because the API is not stable, before test this app, please call the api first to make sure the api is working.
 
 ### Get the information of the strange number
-GET http://3.25.150.64:8000/catalog/number/all/
+`GET http://3.25.150.64:8000/catalog/number/all/`
 
 ### Upload the strange number
-POST http://3.25.150.64:8000/catalog/number/create/
+`POST http://3.25.150.64:8000/catalog/number/create/`
 payload: 
 ```
 {
@@ -54,5 +55,5 @@ payload:
 ### Clone the project
 `git clone https://github.com/pollyannagogolook/PollyCall`
 
-
-```
+## Author
+This project is created by Pollyanna Wu in Gogolook. 
