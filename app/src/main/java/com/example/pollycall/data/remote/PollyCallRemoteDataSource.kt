@@ -12,12 +12,15 @@ class PollyCallRemoteDataSource @Inject constructor(private val service: ApiServ
     }
 
 
-    suspend fun getCallData():CallResponse<Call>{
+    suspend fun getCallData(number: String):CallResponse<Call>{
         // get the call data from pollCall server
         return try {
-            CallResponse.Success(service.getCall())
+            Log.i(TAG, "getCallData: $number")
+            CallResponse.Success(service.getCall(number))
+
         } catch (e: Exception) {
-            Log.i(TAG, "getCallData: ${e.message}")
+
+            Log.i(TAG, "getCallData: $number ${e.message}")
             CallResponse.Error(e.message.toString(), null)
         }
 
