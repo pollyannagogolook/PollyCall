@@ -30,7 +30,7 @@
             </intent-filter>
         </activity>
         <service android:name=".call_detect.CallScreeningService"
-            android:permission="BIND_SCREENING_SERVICE"
+            android:permission="android.permission.BIND_SCREENING_SERVICE"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.telecom.CallScreeningService" />

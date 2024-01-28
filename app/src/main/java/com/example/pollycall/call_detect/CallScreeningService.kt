@@ -2,6 +2,7 @@ package com.example.pollycall.call_detect
 
 import android.telecom.Call
 import android.telecom.CallScreeningService
+import android.util.Log
 import com.example.pollycall.data.PollyCallRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,11 @@ class CallScreeningService @Inject constructor(
 ) : CallScreeningService() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Main)
+    companion object{
+        const val TAG = "onScreenCall"
+    }
     override fun onScreenCall(callDetails: Call.Details) {
+        Log.i(TAG, "onScreenCall: $callDetails")
 
         // get inComing Number
         val inComingNumber = callDetails.handle.schemeSpecificPart

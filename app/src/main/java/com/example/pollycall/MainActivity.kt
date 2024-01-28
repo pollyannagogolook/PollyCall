@@ -1,17 +1,22 @@
 package com.example.pollycall
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
@@ -31,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         const val CHANNEL_ID = "polly_call_channel"
+        const val REQUEST_CODE = 1
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +45,7 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         createNotificationChannel()
+        checkCallScreeningPermission()
 
         lifecycleScope.launch {
             viewModel.inComingNumberFlow.collect { phoneNumber ->
@@ -47,8 +54,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            viewModel.phoneInfoFlow.collect{phoneInfo ->
-               connectToService(phoneInfo)
+            viewModel.phoneInfoFlow.collect { phoneInfo ->
+                connectToService(phoneInfo)
             }
         }
 
@@ -97,6 +104,20 @@ class MainActivity : AppCompatActivity() {
         }
 
 
+    }
+
+    @SuppressLint("InlinedApi")
+    private fun checkCallScreeningPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(
+                this, arrayOf(Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.CALL_PHONE,
+                    Manifest.permission.ANSWER_PHONE_CALLS
+                    ), REQUEST_CODE)
+        }
     }
 }
 
