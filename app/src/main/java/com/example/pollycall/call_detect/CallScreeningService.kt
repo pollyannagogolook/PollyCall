@@ -13,13 +13,19 @@ import javax.inject.Inject
 /**
  * Created by Pollyanna Wu on 2024/1/26
  *
+ * CallScreeningService performs 2 tasks:
+ * 1. Detect incoming call
+ * 2. Block incoming call
+ *
  * This class is used to detect incoming call
  * Currently, all calls are allowed
  */
 @AndroidEntryPoint
 class CallScreeningService @Inject constructor(
-    private val repository: PollyCallRepository
 ) : CallScreeningService() {
+
+    @Inject
+    lateinit var repository: PollyCallRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Main)
     companion object{

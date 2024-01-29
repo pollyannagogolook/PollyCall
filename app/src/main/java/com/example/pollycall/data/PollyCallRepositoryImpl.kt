@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.ui.layout.LookaheadLayout
 import com.example.pollycall.data.local.CallDao
 import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import com.example.pollycall.utils.Constants.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -36,7 +37,7 @@ class PollyCallRepositoryImpl @Inject constructor(
 
     companion object {
         private const val TAG = "PollyCallRepositoryImpl"
-        private const val UNKNOWN_ERROR = "Unknown error"
+
     }
 
     private val phoneNumberFlow = MutableStateFlow<String>("")
