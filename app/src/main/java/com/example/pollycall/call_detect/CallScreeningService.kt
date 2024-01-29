@@ -28,18 +28,31 @@ class CallScreeningService @Inject constructor(
     lateinit var repository: PollyCallRepository
 
     private val serviceScope = CoroutineScope(Dispatchers.Main)
-    companion object{
+
+    companion object {
         const val TAG = "onScreenCall"
     }
+
     override fun onScreenCall(callDetails: Call.Details) {
         Log.i(TAG, "onScreenCall: $callDetails")
 
         // get inComing Number
         val inComingNumber = callDetails.handle.schemeSpecificPart
 
+        // create a response to the call, currently all calls are allowed
+        val response = CallResponse.Builder()
+            .setRejectCall(false)
+            .setDisallowCall(false)
+            .setSkipNotification(false)
+            .setSkipCallLog(false).build()
+
         serviceScope.launch {
             // search call data in data layer
             repository.searchScreenCall(inComingNumber)
         }
+
+        respondToCall(
+            callDetails, response
+        )
     }
 }
