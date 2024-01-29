@@ -9,7 +9,7 @@ Currently, user can upload the strange number successfully. However, the app is 
 <img width="743" alt="截圖 2024-01-28 上午9 51 44" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/c904edf5-406f-45bc-87dc-370454cc30e8">
 
 ### get information of the strange number from the server when the phone is ringing
-<img width="629" alt="screenshot_polly_call.png" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/f809d95e-5e99-4f84-9af7-7005b2fb55a2">
+<img width="630" alt="screenshot_polly_call.png" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/d881800f-1786-487f-b56d-45a04494bed4">
 
 
 
