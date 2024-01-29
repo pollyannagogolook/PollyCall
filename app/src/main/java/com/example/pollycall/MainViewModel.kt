@@ -13,7 +13,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: PollyCallRepository) : ViewModel() {
 
-    private val _inComingNumberFlow = repository.getScreenCall()
+    private val _inComingNumberFlow = MutableStateFlow<String>("")
     val inComingNumberFlow: StateFlow<String> = _inComingNumberFlow
 
     private var _phoneInfoFlow = MutableStateFlow<String>("")
@@ -22,10 +22,9 @@ class MainViewModel @Inject constructor(private val repository: PollyCallReposit
 
     fun getPhoneInfo(phoneNumber: String) {
         viewModelScope.launch {
-            repository.searchScreenCall(phoneNumber).collect() { callResponse ->
+            val callResponse = repository.searchScreenCall(phoneNumber)
 
                 if (callResponse is CallResponse.Success) {
-
                     callResponse.data?.let {
                         _phoneInfoFlow.value =
                             "你接到一通來自 ${it.owner} 的電話，電話號碼為 ${it.number}"
@@ -37,7 +36,7 @@ class MainViewModel @Inject constructor(private val repository: PollyCallReposit
                     _phoneInfoFlow.value = "查詢電話時遇到錯誤：${callResponse.message}"
                 }
 
-            }
+
         }
     }
 }

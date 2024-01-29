@@ -8,7 +8,7 @@ import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import androidx.annotation.RequiresApi
-import com.example.pollycall.MainActivity.Companion.CHANNEL_ID
+import com.example.pollycall.utils.Constants.Companion.CHANNEL_ID
 
 
 class ForegroundService: Service(){
