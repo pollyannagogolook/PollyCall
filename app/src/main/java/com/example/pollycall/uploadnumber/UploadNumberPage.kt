@@ -6,15 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doAfterTextChanged
-import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.example.pollycall.R
 import com.example.pollycall.data.Call
 import com.example.pollycall.data.CallResponse
+import com.example.pollycall.data.iap.SubscriptionViewModel
 import com.example.pollycall.databinding.FragmentUploadNumberPageBinding
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 
@@ -26,7 +27,8 @@ import kotlinx.coroutines.launch
 @AndroidEntryPoint
 class UploadNumberPage : Fragment() {
 
-    private val viewModel by viewModels<UploadNumberViewModel>()
+    private val uploadNumberViewModel by viewModels<UploadNumberViewModel>()
+    private val subscriptionViewModel by viewModels<SubscriptionViewModel>()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -37,8 +39,24 @@ class UploadNumberPage : Fragment() {
         var numberOwner = ""
         var isScam = false
 
+
+        // collect available products to sale flow
         lifecycleScope.launch {
-            viewModel.uploadResponseFlow.collect {
+            subscriptionViewModel.productsForSaleFlows.combine(subscriptionViewModel.currentPurchaseFlow) { productsForSale, currentPurchase ->
+                productsForSale.basicProductDetails?.let {
+                    subscriptionViewModel.buy(
+                        it,
+                        activity = requireActivity(),
+                        currentPurchases = currentPurchase,
+                        tag = "basic"
+                    )
+                }
+            }
+        }
+
+
+        lifecycleScope.launch {
+            uploadNumberViewModel.uploadResponseFlow.collect {
 
                 when (it) {
                     is CallResponse.Loading -> {
@@ -87,7 +105,7 @@ class UploadNumberPage : Fragment() {
         binding.submitButton.setOnClickListener {
             binding.submitButton.isClickable = false
             val submittedCall = Call(stangeNumber, numberOwner, isScam)
-            viewModel.uploadNumber(submittedCall)
+            uploadNumberViewModel.uploadNumber(submittedCall)
         }
 
 

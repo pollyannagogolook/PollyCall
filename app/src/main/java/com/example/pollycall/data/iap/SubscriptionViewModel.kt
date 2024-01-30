@@ -10,6 +10,7 @@ import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails
 import com.android.billingclient.api.Purchase
 import com.example.pollycall.data.MainState
+import com.example.pollycall.di.PollyCallApplication
 import com.example.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,11 +22,10 @@ import javax.inject.Inject
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     application: Application,
-    private val subscriptionRepository: SubscriptionRepository,
+    subscriptionRepository: SubscriptionRepository,
     private var billingClient: BillingClientWrapper
 ) : AndroidViewModel(application) {
     private val _billingConnectionState = MutableStateFlow(false)
-    val billingConnectionState = _billingConnectionState
 
 
     init {

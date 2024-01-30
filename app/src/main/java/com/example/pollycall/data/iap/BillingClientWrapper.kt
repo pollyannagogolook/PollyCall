@@ -1,6 +1,7 @@
 package com.example.pollycall.data.iap
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
@@ -28,8 +29,7 @@ import javax.inject.Singleton
  * Author: Pollyanna Wu
  * This is a wrapper to isolate the Google Play Billing's [BillingClient] methods needed
  * **/
-@Singleton
-class BillingClientWrapper @Inject constructor(context: PollyCallApplication) : PurchasesUpdatedListener,
+class BillingClientWrapper @Inject constructor(context: Application) : PurchasesUpdatedListener,
     ProductDetailsResponseListener {
 
     // New Subscription ProductDetails
