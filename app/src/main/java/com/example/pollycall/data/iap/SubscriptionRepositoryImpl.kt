@@ -1,7 +1,7 @@
 package com.example.pollycall.data.iap
 
 import com.android.billingclient.api.ProductDetails
-import com.example.pollycall.data.PollyCallRepository
+import com.android.billingclient.api.Purchase
 import com.example.pollycall.utils.Constants
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filter
@@ -14,7 +14,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
     private val billingClientWrapper: BillingClientWrapper) : SubscriptionRepository {
 
     // check if user has purchased the app
-    override fun checkUserHasPurchasedApp(): Flow<Boolean> =
+    override fun checkHasRenewableBasic(): Flow<Boolean> =
         billingClientWrapper.purchases.map { purchaseList ->
             purchaseList.any { purchase ->
                 purchase.products.contains(Constants.BASIC_SUB) && purchase.isAutoRenewing
@@ -59,4 +59,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
         }.map { premiumProductMap ->
             premiumProductMap[Constants.BASIC_SUB]
         }
+
+    // get all purchases
+    override fun getPurchases(): Flow<List<Purchase>> = billingClientWrapper.purchases
 }

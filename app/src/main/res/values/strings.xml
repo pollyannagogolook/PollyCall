@@ -8,4 +8,6 @@
     <string name="no_value">否</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="premium_subscription">Premium Subscription</string>
+    <string name="basic_subscription">basic_subscription</string>
 </resources>

@@ -6,25 +6,27 @@ import androidx.lifecycle.viewModelScope
 import com.example.pollycall.data.Call
 import com.example.pollycall.data.CallResponse
 import com.example.pollycall.data.PollyCallRepository
+import com.example.pollycall.data.iap.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class UploadNumberViewModel @Inject constructor(private val repository: PollyCallRepository): ViewModel(){
-    companion object{
+class UploadNumberViewModel @Inject constructor(
+    private val pollyRepository: PollyCallRepository
+) : ViewModel() {
+    companion object {
         private const val TAG = "UploadNumberViewModel"
     }
 
     private var _uploadResponseFlow = MutableStateFlow<CallResponse<Call?>>(CallResponse.Loading())
     val uploadResponseFlow = _uploadResponseFlow
 
-        fun uploadNumber(call: Call){
-            viewModelScope.launch {
-                _uploadResponseFlow.value = repository.uploadCallData(call)
-                Log.i(TAG, "uploadNumber: ${_uploadResponseFlow.value.message}")
-            }
+    fun uploadNumber(call: Call) {
+        viewModelScope.launch {
+            _uploadResponseFlow.value = pollyRepository.uploadCallData(call)
+            Log.i(TAG, "uploadNumber: ${_uploadResponseFlow.value.message}")
         }
+    }
 }

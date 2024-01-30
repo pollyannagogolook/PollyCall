@@ -115,6 +115,32 @@
             app:lottie_rawRes="@raw/error_lottie"
             />
 
+        <Button
+            android:id="@+id/premium_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/premium_subscription"
+            android:background="@color/white"
+            android:textColor="@color/primary"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/submit_button"
+            android:layout_margin="@dimen/standard_dimen"
+            android:padding="@dimen/standard_dimen"
+            />
+        <Button
+            android:id="@+id/basic_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/basic_subscription"
+            android:background="@color/white"
+            android:textColor="@color/primary"
+            app:layout_constraintStart_toEndOf="@id/premium_btn"
+            app:layout_constraintEnd_toEndOf="@id/submit_button"
+            app:layout_constraintBottom_toTopOf="@id/submit_button"
+            android:layout_margin="@dimen/standard_dimen"
+            android:padding="@dimen/standard_dimen"
+            />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

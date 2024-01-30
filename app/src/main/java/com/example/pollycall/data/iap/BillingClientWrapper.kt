@@ -1,10 +1,12 @@
 package com.example.pollycall.data.iap
 
+import android.app.Activity
 import android.content.Context
 import android.util.Log
 import com.android.billingclient.api.AcknowledgePurchaseParams
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClientStateListener
+import com.android.billingclient.api.BillingFlowParams
 import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.ProductDetailsResponseListener
@@ -14,12 +16,20 @@ import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
+import com.example.pollycall.di.PollyCallApplication
 import com.example.pollycall.utils.Constants.Companion.IAP_TAG
 import com.example.pollycall.utils.Constants.Companion.LIST_OF_PRODUCTS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class BillingClientWrapper(context: Context) : PurchasesUpdatedListener,
+/**
+ * Author: Pollyanna Wu
+ * This is a wrapper to isolate the Google Play Billing's [BillingClient] methods needed
+ * **/
+@Singleton
+class BillingClientWrapper @Inject constructor(context: PollyCallApplication) : PurchasesUpdatedListener,
     ProductDetailsResponseListener {
 
     // New Subscription ProductDetails
@@ -64,6 +74,12 @@ class BillingClientWrapper(context: Context) : PurchasesUpdatedListener,
                 }
             }
         })
+    }
+
+    // launch purchase flow
+    fun launchBillingFlow(activity: Activity, params: BillingFlowParams): Int {
+        val responseCode = billingClient.launchBillingFlow(activity, params)
+        return responseCode.responseCode
     }
 
     // Query Google Play Billing for existing purchases.
