@@ -5,8 +5,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.pollycall.data.CallResponse
 import com.example.pollycall.data.PollyCallRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +22,17 @@ class MainViewModel @Inject constructor(private val repository: PollyCallReposit
     private var _phoneInfoFlow = MutableStateFlow<String>("")
     val phoneInfoFlow: StateFlow<String> = _phoneInfoFlow
 
+    init {
+        getInComingNumber()
+    }
+
+    private fun getInComingNumber() {
+        viewModelScope.launch {
+            repository.getInComingNumber().collect() { number ->
+                _inComingNumberFlow.value = number ?: ""
+            }
+        }
+    }
 
     fun getPhoneInfo(phoneNumber: String) {
         viewModelScope.launch {

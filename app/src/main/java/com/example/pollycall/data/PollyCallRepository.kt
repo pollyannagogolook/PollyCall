@@ -6,7 +6,7 @@ interface PollyCallRepository {
     suspend fun searchScreenCall(inComingNumber: String): CallResponse<Call?>
     suspend fun uploadCallData(call: Call): CallResponse<Call?>
     fun shouldBlockCall(number: String): Boolean
-    fun getInComingNumber(): Flow<String?>
+    suspend fun getInComingNumber(): Flow<String?>
 
 
 }

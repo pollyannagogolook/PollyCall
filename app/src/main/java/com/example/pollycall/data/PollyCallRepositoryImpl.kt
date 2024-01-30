@@ -8,8 +8,10 @@ import com.example.pollycall.utils.Constants.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -102,12 +104,11 @@ class PollyCallRepositoryImpl @Inject constructor(
 
 
     // get phone number from flow, pass to viewModel
-    override fun getInComingNumber(): Flow<String> = flow {
-        _inComingNumber?.let {
-            emit(it)
-        }
+    override suspend fun getInComingNumber(): StateFlow<String> {
+        return flow {
+            emit(_inComingNumber ?: "")
+        }.stateIn(CoroutineScope(Dispatchers.IO))
     }
-
     override suspend fun uploadCallData(call: Call): CallResponse<Call?> {
         var uploadResponse: CallResponse<Call?> = CallResponse.Loading()
         withContext(Dispatchers.IO) {

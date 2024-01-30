@@ -21,8 +21,7 @@ import javax.inject.Inject
  * Currently, all calls are allowed
  */
 @AndroidEntryPoint
-class CallScreeningService @Inject constructor(
-) : CallScreeningService() {
+class PollyCallScreeningService: CallScreeningService() {
 
     @Inject
     lateinit var repository: PollyCallRepository
