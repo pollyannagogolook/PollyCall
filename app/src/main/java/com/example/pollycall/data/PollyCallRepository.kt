@@ -1,5 +1,6 @@
 package com.example.pollycall.data
 
+import com.android.billingclient.api.ProductDetails
 import kotlinx.coroutines.flow.Flow
 
 interface PollyCallRepository {

@@ -1,15 +1,21 @@
 package com.example.pollycall.data
 
 import android.util.Log
+import com.android.billingclient.api.ProductDetails
+import com.example.pollycall.data.iap.BillingClientWrapper
 import com.example.pollycall.data.local.CallDao
 import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import com.example.pollycall.utils.Constants.Companion.BASIC_SUB
 import com.example.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
 import com.example.pollycall.utils.Constants.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,7 +41,7 @@ class PollyCallRepositoryImpl @Inject constructor(
     private var _inComingNumber: String? = null
     private var _phoneSearchResponse: CallResponse<Call?> = CallResponse.Loading()
 
-    override suspend fun searchScreenCall(inComingNumber: String){
+    override suspend fun searchScreenCall(inComingNumber: String) {
 
         // save phone number
         _inComingNumber = inComingNumber
@@ -105,9 +111,10 @@ class PollyCallRepositoryImpl @Inject constructor(
     // get phone number from flow, pass to viewModel
     override suspend fun getSearchResponse(): StateFlow<CallResponse<Call?>> {
         return flow {
-            emit(_phoneSearchResponse )
+            emit(_phoneSearchResponse)
         }.stateIn(CoroutineScope(Dispatchers.IO))
     }
+
     override suspend fun uploadCallData(call: Call): CallResponse<Call?> {
         var uploadResponse: CallResponse<Call?> = CallResponse.Loading()
         withContext(Dispatchers.IO) {
@@ -139,3 +146,6 @@ class PollyCallRepositoryImpl @Inject constructor(
         return false
     }
 }
+
+
+

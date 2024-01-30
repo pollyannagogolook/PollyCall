@@ -15,6 +15,7 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.android.billingclient.api.queryProductDetails
 import com.android.billingclient.api.queryPurchasesAsync
 import com.example.pollycall.utils.Constants.Companion.IAP_TAG
+import com.example.pollycall.utils.Constants.Companion.LIST_OF_PRODUCTS
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
@@ -28,7 +29,7 @@ class BillingClientWrapper(context: Context) : PurchasesUpdatedListener,
 
     // Current Purchases
     private val _purchases = MutableStateFlow<List<Purchase>>(listOf())
-    val purchase = _purchases.asStateFlow()
+    val purchases = _purchases.asStateFlow()
 
     // Set to true when a purchase is acknowledged and false when not.
     private val _isNewPurchaseAcknowledged = MutableStateFlow(value = false)
@@ -170,9 +171,4 @@ class BillingClientWrapper(context: Context) : PurchasesUpdatedListener,
         billingClient.endConnection()
     }
 
-    companion object {
-        private const val BASIC_SUB = "basic_subscription"
-        private const val PREMIUM_SUB = "premium_subscription"
-        private val LIST_OF_PRODUCTS = listOf(BASIC_SUB, PREMIUM_SUB)
-    }
 }
