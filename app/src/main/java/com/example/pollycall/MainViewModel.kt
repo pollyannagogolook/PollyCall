@@ -5,39 +5,25 @@ import androidx.lifecycle.viewModelScope
 import com.example.pollycall.data.CallResponse
 import com.example.pollycall.data.PollyCallRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: PollyCallRepository) : ViewModel() {
 
-    private val _inComingNumberFlow = MutableStateFlow<String>("")
-    val inComingNumberFlow: StateFlow<String> = _inComingNumberFlow
 
     private var _phoneInfoFlow = MutableStateFlow<String>("")
     val phoneInfoFlow: StateFlow<String> = _phoneInfoFlow
 
     init {
-        getInComingNumber()
+        getPhoneInfo()
     }
 
-    private fun getInComingNumber() {
+    private fun getPhoneInfo() {
         viewModelScope.launch {
-            repository.getInComingNumber().collect() { number ->
-                _inComingNumberFlow.value = number ?: ""
-            }
-        }
-    }
-
-    fun getPhoneInfo(phoneNumber: String) {
-        viewModelScope.launch {
-            val callResponse = repository.searchScreenCall(phoneNumber)
-
+            repository.getSearchResponse().collect { callResponse ->
                 if (callResponse is CallResponse.Success) {
                     callResponse.data?.let {
                         _phoneInfoFlow.value =
@@ -50,7 +36,7 @@ class MainViewModel @Inject constructor(private val repository: PollyCallReposit
                     _phoneInfoFlow.value = "查詢電話時遇到錯誤：${callResponse.message}"
                 }
 
-
+            }
         }
     }
 }

@@ -7,7 +7,6 @@ import com.example.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
 import com.example.pollycall.utils.Constants.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -34,8 +33,9 @@ class PollyCallRepositoryImpl @Inject constructor(
 
 
     private var _inComingNumber: String? = null
+    private var _phoneSearchResponse: CallResponse<Call?> = CallResponse.Loading()
 
-    override suspend fun searchScreenCall(inComingNumber: String): CallResponse<Call?> {
+    override suspend fun searchScreenCall(inComingNumber: String){
 
         // save phone number
         _inComingNumber = inComingNumber
@@ -64,7 +64,6 @@ class PollyCallRepositoryImpl @Inject constructor(
             }
 
         }
-        return numberInfo
     }
 
     private suspend fun fetchDataFromRemote(inComingNumber: String): CallResponse<Call?> {
@@ -104,9 +103,9 @@ class PollyCallRepositoryImpl @Inject constructor(
 
 
     // get phone number from flow, pass to viewModel
-    override suspend fun getInComingNumber(): StateFlow<String> {
+    override suspend fun getSearchResponse(): StateFlow<CallResponse<Call?>> {
         return flow {
-            emit(_inComingNumber ?: "")
+            emit(_phoneSearchResponse )
         }.stateIn(CoroutineScope(Dispatchers.IO))
     }
     override suspend fun uploadCallData(call: Call): CallResponse<Call?> {

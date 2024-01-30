@@ -55,11 +55,6 @@ class MainActivity : AppCompatActivity() {
         registerRoleLauncher()
         checkPermissionAndRequestRole()
 
-        lifecycleScope.launch {
-            viewModel.inComingNumberFlow.collect { phoneNumber ->
-                viewModel.getPhoneInfo(phoneNumber)
-            }
-        }
 
         lifecycleScope.launch {
             viewModel.phoneInfoFlow.collect { phoneInfo ->
