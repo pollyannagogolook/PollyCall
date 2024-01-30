@@ -99,6 +99,10 @@ dependencies {
 
     // lottie
     implementation ("com.airbnb.android:lottie:4.2.2")
+
+    // Google PLay Billing library.
+    var billing_version = "5.0.0"
+    implementation ("com.android.billingclient:billing-ktx:$billing_version")
 }
 // Allow references to generated code
 kapt {

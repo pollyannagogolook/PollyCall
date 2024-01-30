@@ -6,5 +6,6 @@ class Constants {
         const val DETECT_CALL_REQUEST_CODE = 1
         const val UNKNOWN_ERROR = "Unknown error"
         const val DETECT_CALL_TAG = "DetectCall"
+        const val IAP_TAG = "IAP"
     }
 }
