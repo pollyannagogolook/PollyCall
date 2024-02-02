@@ -11,18 +11,18 @@ import javax.inject.Singleton
 
 @Singleton
 class SubscriptionRepositoryImpl @Inject constructor(
-    private val billingClientWrapper: BillingClientWrapper) : SubscriptionRepository {
+    private val billingClientManager: BillingClientManager) : SubscriptionRepository {
 
     // check if user has purchased the app
     override fun checkHasRenewableBasic(): Flow<Boolean> =
-        billingClientWrapper.purchases.map { purchaseList ->
+        billingClientManager.purchases.map { purchaseList ->
             purchaseList.any { purchase ->
                 purchase.products.contains(Constants.BASIC_SUB) && purchase.isAutoRenewing
             }
         }
 
     // check if the purchase is prepaid basic subscription
-    override fun checkHasPrepaidBasic(): Flow<Boolean> = billingClientWrapper.purchases.map { purchaseList ->
+    override fun checkHasPrepaidBasic(): Flow<Boolean> = billingClientManager.purchases.map { purchaseList ->
         purchaseList.any { purchase ->
             !purchase.isAutoRenewing && purchase.products.contains(Constants.BASIC_SUB)
         }
@@ -30,7 +30,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     // check if the purchase is auto-renewing premium subscription
     override fun checkHasRenewablePremium(): Flow<Boolean> =
-        billingClientWrapper.purchases.map { purchaseList ->
+        billingClientManager.purchases.map { purchaseList ->
             purchaseList.any { purchase ->
                 purchase.products.contains(Constants.BASIC_SUB) && purchase.isAutoRenewing
             }
@@ -38,7 +38,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     // check if the purchase is prepaid premium subscription
     override fun checkHasPrepaidPremium(): Flow<Boolean> =
-        billingClientWrapper.purchases.map { purchaseList ->
+        billingClientManager.purchases.map { purchaseList ->
             purchaseList.any { purchase ->
                 !purchase.isAutoRenewing && purchase.products.contains(Constants.BASIC_SUB)
             }
@@ -46,7 +46,7 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     // get product details for basic subscription
     override fun getBasicProductDetails(): Flow<ProductDetails?> =
-        billingClientWrapper.productWithProductDetails.filter { productMap ->
+        billingClientManager.productWithProductDetails.filter { productMap ->
             productMap.containsKey(Constants.BASIC_SUB)
         }.map { basicProductMap ->
             basicProductMap[Constants.BASIC_SUB]
@@ -54,12 +54,12 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
     // get product details for premium subscription
     override fun getPremiumProductDetails(): Flow<ProductDetails?> =
-        billingClientWrapper.productWithProductDetails.filter { productMap ->
+        billingClientManager.productWithProductDetails.filter { productMap ->
             productMap.containsKey(Constants.BASIC_SUB)
         }.map { premiumProductMap ->
             premiumProductMap[Constants.BASIC_SUB]
         }
 
     // get all purchases
-    override fun getPurchases(): Flow<List<Purchase>> = billingClientWrapper.purchases
+    override fun getPurchases(): Flow<List<Purchase>> = billingClientManager.purchases
 }
