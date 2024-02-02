@@ -42,17 +42,12 @@ class UploadNumberPage : Fragment() {
 
         // collect available products to sale flow
         lifecycleScope.launch {
-            subscriptionViewModel.productsForSaleFlows.combine(subscriptionViewModel.currentPurchaseFlow) { productsForSale, currentPurchase ->
-                productsForSale.basicProductDetails?.let {
-                    subscriptionViewModel.buy(
-                        it,
-                        activity = requireActivity(),
-                        currentPurchases = currentPurchase,
-                        tag = "basic"
-                    )
-                }
-            }
+            subscriptionViewModel.buy(
+                activity = requireActivity()
+            )
         }
+
+
 
 
         lifecycleScope.launch {

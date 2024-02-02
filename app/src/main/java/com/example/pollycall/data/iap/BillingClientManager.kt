@@ -15,10 +15,14 @@ import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.example.pollycall.utils.Constants.Companion.IAP_TAG
-import com.example.pollycall.utils.Constants.Companion.LIST_OF_PRODUCTS
+import com.example.pollycall.utils.throwIfDebugBuild
+import kotlinx.coroutines.CancellableContinuation
+
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
+import kotlin.coroutines.resume
 
 /**
  * Author: Pollyanna Wu
@@ -62,7 +66,6 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                     // The BillingClient is ready. You can query purchases here.
                     billingConnectionState.value = true
                     queryPurchases()
-                    queryProductDetails()
 
                 } else {
                     Log.e(IAP_TAG, billingResult.debugMessage)
@@ -72,9 +75,25 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // launch purchase flow
-    fun launchBillingFlow(activity: Activity, params: BillingFlowParams): Int {
-        val responseCode = billingClient.launchBillingFlow(activity, params)
-        return responseCode.responseCode
+    suspend fun purchaseSubscription(activity: Activity, productDetails: ProductDetails): BillingResult? = suspendCancellableCoroutine{ continuation ->
+        productDetails.takeIf { productDetails ->
+            productDetails.subscriptionOfferDetails.isNullOrEmpty() && productDetails.subscriptionOfferDetails?.get(0)?.offerToken != null
+        }?.let { productDetails ->
+
+            val productDetailsParamsList = listOf(
+                productDetails.subscriptionOfferDetails?.first()?.offerToken?.let {offerToken ->
+                    BillingFlowParams.ProductDetailsParams.newBuilder()
+                        .setProductDetails(productDetails)
+                        .setOfferToken(offerToken)
+                        .build()
+                }
+            )
+
+            val billingFlowParams = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(productDetailsParamsList)
+                .build()
+            continuation.resumeSafely(billingClient.launchBillingFlow(activity, billingFlowParams))
+        }
     }
 
     // Query Google Play Billing for existing purchases.
@@ -100,21 +119,23 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // Query Google Play Billing for products available to sell and present them to the user.
-    fun queryProductDetails() {
+    fun queryProductDetails(productId: String){
         val params = QueryProductDetailsParams.newBuilder()
         val productList = mutableListOf<QueryProductDetailsParams.Product>()
 
-        for (product in LIST_OF_PRODUCTS) {
             productList.add(
                 QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(product)
+                    .setProductId(productId)
                     .setProductType(BillingClient.ProductType.SUBS)
                     .build()
             )
-        }
+
         params.setProductList(productList).let { productDetailsParams ->
-            billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
-        }
+            return billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
+            }
+
+
+
     }
 
 
@@ -133,6 +154,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
 
         }
     }
+
 
     private fun acknowledgePurchase(purchase: Purchase?) {
         purchase?.let { purchase ->
@@ -180,6 +202,15 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     fun terminateBillingConnection(){
         Log.i(IAP_TAG, "End Billing Client connection")
         billingClient.endConnection()
+    }
+
+
+    private fun <T> CancellableContinuation<T>.resumeSafely(value: T) {
+        try {
+            if (this.isActive) resume(value)
+        } catch (e: Exception) {
+            e.throwIfDebugBuild()
+        }
     }
 
 }

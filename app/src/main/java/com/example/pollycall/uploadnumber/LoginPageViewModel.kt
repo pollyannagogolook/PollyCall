@@ -1,7 +1,28 @@
 package com.example.pollycall.uploadnumber
 
+import android.app.Activity
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.android.billingclient.api.BillingFlowParams
+import com.example.pollycall.data.iap.SubscriptionRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginPageViewModel : ViewModel() {
-    // TODO: Implement the ViewModel
+@HiltViewModel
+class LoginPageViewModel @Inject constructor(
+    private val repository: SubscriptionRepository
+) : ViewModel() {
+
+    init {
+        viewModelScope.launch {
+            repository.getSubscriptionDetail()
+        }
+    }
+
+    fun purchaseSubscription(activity: Activity) {
+        viewModelScope.launch {
+            repository.purchaseSubscription(activity)
+        }
+    }
 }

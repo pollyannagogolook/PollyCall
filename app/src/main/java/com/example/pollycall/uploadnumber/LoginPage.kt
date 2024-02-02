@@ -1,19 +1,19 @@
 package com.example.pollycall.uploadnumber
 
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.viewModels
 import com.example.pollycall.R
 import com.example.pollycall.databinding.FragmentLoginPageBinding
 
 class LoginPage : Fragment() {
 
 
-    private lateinit var viewModel: LoginPageViewModel
+    private val viewModel: LoginPageViewModel by viewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +25,11 @@ class LoginPage : Fragment() {
             container,
             false
         )
+
+        binding.iapPurchaseBtn.setOnClickListener {
+            // should take current purchase details
+            // then purchase subscription
+        }
 
 
 

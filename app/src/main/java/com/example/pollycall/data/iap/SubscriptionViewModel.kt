@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     application: Application,
-    subscriptionRepository: SubscriptionRepository,
+    private var subscriptionRepository: SubscriptionRepository,
     private var billingClient: BillingClientManager
 ) : AndroidViewModel(application) {
     private val _billingConnectionState = MutableStateFlow(false)
@@ -29,35 +29,6 @@ class SubscriptionViewModel @Inject constructor(
 
     init {
         billingClient.startBillingConnection(_billingConnectionState)
-    }
-
-    // Combine the two products' flows into one
-    val productsForSaleFlows = combine(
-        subscriptionRepository.getBasicProductDetails(),
-        subscriptionRepository.getPremiumProductDetails()
-    ) { basicProductDetails, premiumProductDetails ->
-
-        MainState(
-            basicProductDetails = basicProductDetails,
-            premiumProductDetails = premiumProductDetails
-        )
-    }
-
-    // Combine the all possible subscriptions' flows into one
-    private val userCurrentSubscriptionFlow = combine(
-        subscriptionRepository.checkHasPrepaidBasic(),
-        subscriptionRepository.checkHasRenewableBasic(),
-        subscriptionRepository.checkHasPrepaidPremium(),
-        subscriptionRepository.checkHasRenewablePremium()
-    ) { hasRenewableBasic, hasPrepaidBasic, hasRenewablePremium, hasPrepaidPremium ->
-
-        MainState(
-            hasRenewableBasic = hasRenewableBasic,
-            hasPrepaidBasic = hasPrepaidBasic,
-            hasRenewablePremium = hasRenewablePremium,
-            hasPrepaidPremium = hasPrepaidPremium
-        )
-
     }
 
 
@@ -70,43 +41,7 @@ class SubscriptionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            userCurrentSubscriptionFlow.collectLatest { collectedSubscriptions ->
-                when {
-                    collectedSubscriptions.hasPrepaidBasic == true &&
-                            collectedSubscriptions.hasRenewableBasic == false -> {
-                        // User has prepaid basic subscription
-                        Log.i(IAP_TAG, "User has prepaid basic subscription")
-                    }
 
-                    collectedSubscriptions.hasRenewablePremium == true &&
-                            collectedSubscriptions.hasRenewableBasic == false -> {
-                        // User has renewable premium subscription
-                        Log.i(IAP_TAG, "User has renewable premium subscription")
-
-                    }
-
-                    collectedSubscriptions.hasPrepaidPremium == true &&
-                            collectedSubscriptions.hasRenewableBasic == false -> {
-                        // User has prepaid premium subscription
-                        Log.i(IAP_TAG, "User has prepaid premium subscription")
-
-                    }
-
-                    collectedSubscriptions.hasRenewableBasic == true &&
-                            collectedSubscriptions.hasRenewablePremium == false -> {
-                        // User has renewable basic subscription
-                        Log.i(IAP_TAG, "User has renewable basic subscription")
-
-                    }
-
-                    else -> {
-                        // User has no subscription
-                        Log.i(IAP_TAG, "User has no subscription")
-                    }
-
-                }
-
-            }
         }
     }
 
@@ -127,81 +62,6 @@ class SubscriptionViewModel @Inject constructor(
         return eligibleOffers
     }
 
-    /**
-     * Calculates the lowest priced offer amongst all eligible offers.
-     * @return the lowest priced offer token.
-     * */
-    private fun leastPricedOfferToken(
-        offerDetails: List<SubscriptionOfferDetails>
-    ): String {
-        var offerToken = String()
-        var leastPricedOffer: ProductDetails.SubscriptionOfferDetails
-        var lowestPrice = Double.MAX_VALUE
-
-        if (offerDetails.isNotEmpty()) {
-            for (offerDetail in offerDetails) {
-                for (price in offerDetail.pricingPhases.pricingPhaseList) {
-                    if (price.priceAmountMicros < lowestPrice) {
-                        lowestPrice = price.priceAmountMicros.toDouble()
-                        leastPricedOffer = offerDetail
-                        offerToken = leastPricedOffer.offerToken
-                    }
-                }
-            }
-        }
-        return offerToken
-    }
-
-
-    /***
-     * Upgrade or downgrade the subscription plan.
-     * @param productDetails the product details of the plan to upgrade or downgrade to.
-     * @param oldToken the old subscription token.
-     * @return [BillingFlowParams] to launch the billing flow.
-     * */
-    private fun upDownGradeBillingFlowParamsBuilder(
-        productDetails: ProductDetails,
-        offerToken: String,
-        oldToken: String
-    ): BillingFlowParams {
-        return BillingFlowParams.newBuilder().setProductDetailsParamsList(
-            listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
-                    .setOfferToken(offerToken)
-                    .build()
-            )
-        ).setSubscriptionUpdateParams(
-            BillingFlowParams.SubscriptionUpdateParams.newBuilder()
-                .setOldPurchaseToken(oldToken)
-                .setReplaceProrationMode(
-                    BillingFlowParams.ProrationMode.IMMEDIATE_AND_CHARGE_FULL_PRICE
-                )
-                .build()
-        ).build()
-
-    }
-
-    /**
-     * Build normal purchase flow params
-     * @param productDetails the product details of the plan to upgrade or downgrade to.
-     * @param offerToken the offer token of the plan to upgrade or downgrade to.
-     * @return [BillingFlowParams] to launch the billing flow.
-     * **/
-
-    private fun normalPurchaseBillingFlowParamsBuilder(
-        productDetails: ProductDetails,
-        offerToken: String
-    ): BillingFlowParams {
-        return BillingFlowParams.newBuilder().setProductDetailsParamsList(
-            listOf(
-                BillingFlowParams.ProductDetailsParams.newBuilder()
-                    .setProductDetails(productDetails)
-                    .setOfferToken(offerToken)
-                    .build()
-            )
-        ).build()
-    }
 
 
     /****
@@ -213,54 +73,22 @@ class SubscriptionViewModel @Inject constructor(
      *
      */
     fun buy(
-        productDetails: ProductDetails,
-        currentPurchases: List<Purchase>?,
-        activity: Activity,
-        tag: String
+        activity: Activity
     ) {
-        val offers = productDetails.subscriptionOfferDetails?.let { productDetails ->
-            retrieveEligibleOffers(
-                productDetails,
-                tag.lowercase()
+        viewModelScope.launch {
+            subscriptionRepository.purchaseSubscription(
+                activity
             )
         }
-        val offerToken = offers?.let { leastPricedOfferToken(it) }
-        val oldPurchaseToken: String
-
-        // Either upgrade or downgrade, or conversion purchase
-        if (!currentPurchases.isNullOrEmpty() &&
-            currentPurchases.size == MAX_CURRENT_PURCHASES_ALLOWED) {
-
-            // get current purchase token
-            oldPurchaseToken = currentPurchases.first().purchaseToken
-
-            val billingParams = offerToken?.let { token ->
-                upDownGradeBillingFlowParamsBuilder(
-                    productDetails,
-                    token,
-                    oldPurchaseToken
-                )
-            }
-
-            billingParams?.let { params ->
-                billingClient.launchBillingFlow(
-                    activity, params
-                )
-            }
-        }else if(!currentPurchases.isNullOrEmpty()
-            && currentPurchases.size < MAX_CURRENT_PURCHASES_ALLOWED){
-
-            // The developer has allowed users  to have more than 1 purchase
-            Log.d(IAP_TAG, "User has more than 1 current purchase.")
-        }
     }
+
 
     override fun onCleared() {
         super.onCleared()
         billingClient.terminateBillingConnection()
     }
 
-    companion object{
+    companion object {
         private const val MAX_CURRENT_PURCHASES_ALLOWED = 1
     }
 }
