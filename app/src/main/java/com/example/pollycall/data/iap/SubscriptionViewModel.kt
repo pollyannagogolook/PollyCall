@@ -24,13 +24,6 @@ class SubscriptionViewModel @Inject constructor(
     private var subscriptionRepository: SubscriptionRepository,
     private var billingClient: BillingClientManager
 ) : AndroidViewModel(application) {
-    private val _billingConnectionState = MutableStateFlow(false)
-
-
-    init {
-        billingClient.startBillingConnection(_billingConnectionState)
-    }
-
 
     /**
      * The StateFlow of the current purchases
@@ -41,26 +34,10 @@ class SubscriptionViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-
+            subscriptionRepository.startBillingConnection()
         }
     }
 
-    /**
-     * Retrieve all eligible plans and offers using tags from ProductDetails
-     * @return the eligible offers and base plans in a list.
-     * */
-    private fun retrieveEligibleOffers(
-        offerDetails: MutableList<SubscriptionOfferDetails>,
-        tag: String
-    ): List<SubscriptionOfferDetails> {
-        val eligibleOffers = mutableListOf<SubscriptionOfferDetails>()
-        for (offerDetail in offerDetails) {
-            if (offerDetail.offerTags.contains(tag)) {
-                eligibleOffers.add(offerDetail)
-            }
-        }
-        return eligibleOffers
-    }
 
 
 
@@ -72,13 +49,9 @@ class SubscriptionViewModel @Inject constructor(
      * @param activity [Activity] instance
      *
      */
-    fun buy(
-        activity: Activity
-    ) {
+    fun buy(activity: Activity) {
         viewModelScope.launch {
-            subscriptionRepository.purchaseSubscription(
-                activity
-            )
+            subscriptionRepository.purchaseSubscription(activity)
         }
     }
 

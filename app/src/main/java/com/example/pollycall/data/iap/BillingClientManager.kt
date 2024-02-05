@@ -66,6 +66,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                     // The BillingClient is ready. You can query purchases here.
                     billingConnectionState.value = true
                     queryPurchases()
+                    queryProductDetails()
 
                 } else {
                     Log.e(IAP_TAG, billingResult.debugMessage)
@@ -75,13 +76,18 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // launch purchase flow
-    suspend fun purchaseSubscription(activity: Activity, productDetails: ProductDetails): BillingResult? = suspendCancellableCoroutine{ continuation ->
+    suspend fun purchaseSubscription(
+        activity: Activity,
+        productDetails: ProductDetails
+    ): BillingResult? = suspendCancellableCoroutine { continuation ->
         productDetails.takeIf { productDetails ->
-            productDetails.subscriptionOfferDetails.isNullOrEmpty() && productDetails.subscriptionOfferDetails?.get(0)?.offerToken != null
+            productDetails.subscriptionOfferDetails.isNullOrEmpty() && productDetails.subscriptionOfferDetails?.get(
+                0
+            )?.offerToken != null
         }?.let { productDetails ->
 
             val productDetailsParamsList = listOf(
-                productDetails.subscriptionOfferDetails?.first()?.offerToken?.let {offerToken ->
+                productDetails.subscriptionOfferDetails?.first()?.offerToken?.let { offerToken ->
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(productDetails)
                         .setOfferToken(offerToken)
@@ -94,6 +100,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                 .build()
             continuation.resumeSafely(billingClient.launchBillingFlow(activity, billingFlowParams))
         }
+
     }
 
     // Query Google Play Billing for existing purchases.
@@ -119,53 +126,54 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // Query Google Play Billing for products available to sell and present them to the user.
-    fun queryProductDetails(productId: String){
+    fun queryProductDetails() {
         val params = QueryProductDetailsParams.newBuilder()
         val productList = mutableListOf<QueryProductDetailsParams.Product>()
 
-            productList.add(
-                QueryProductDetailsParams.Product.newBuilder()
-                    .setProductId(productId)
-                    .setProductType(BillingClient.ProductType.SUBS)
-                    .build()
-            )
+        productList.add(
+            QueryProductDetailsParams.Product.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build()
+        )
 
         params.setProductList(productList).let { productDetailsParams ->
             return billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
-            }
-
+        }
 
 
     }
 
 
-    // when new purchases returned from the API, PurchaseUpdatedListener.onPurchasesUpdated() will be notified.
+    // Use the PurchasesUpdatedListener to handle new purchases returned from the API
     override fun onPurchasesUpdated(
         billingResult: BillingResult,
         purchases: MutableList<Purchase>?
     ) {
-        if(billingResult.responseCode == BillingClient.BillingResponseCode.OK && !purchases.isNullOrEmpty()) {
+        if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && !purchases.isNullOrEmpty()) {
 
             // if the purchase list is not empty, then acknowledge the purchase
             _purchases.value = purchases
-            for(purchase in purchases){
+            for (purchase in purchases) {
                 acknowledgePurchase(purchase)
             }
-
+        } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
+            Log.e(IAP_TAG, "Error purchasing: ${billingResult.debugMessage}")
         }
     }
 
 
+    // Perform new subscription purchases' acknowledgement client side.
     private fun acknowledgePurchase(purchase: Purchase?) {
         purchase?.let { purchase ->
-            if(!purchase.isAcknowledged){
+            if (!purchase.isAcknowledged) {
                 val params = AcknowledgePurchaseParams.newBuilder()
                     .setPurchaseToken(purchase.purchaseToken)
                     .build()
 
-                billingClient.acknowledgePurchase(params){ billingResult ->
-                    if(billingResult.responseCode == BillingClient.BillingResponseCode.OK
-                        && purchase.purchaseState == Purchase.PurchaseState.PURCHASED){
+                billingClient.acknowledgePurchase(params) { billingResult ->
+                    if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
+                        && purchase.purchaseState == Purchase.PurchaseState.PURCHASED
+                    ) {
                         _isNewPurchaseAcknowledged.value = true
                     }
 
@@ -199,7 +207,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // End Billing Client connection
-    fun terminateBillingConnection(){
+    fun terminateBillingConnection() {
         Log.i(IAP_TAG, "End Billing Client connection")
         billingClient.endConnection()
     }

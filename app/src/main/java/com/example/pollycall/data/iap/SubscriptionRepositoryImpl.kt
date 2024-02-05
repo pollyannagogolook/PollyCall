@@ -23,6 +23,14 @@ class SubscriptionRepositoryImpl @Inject constructor(
 
 
     private var productDetails: ProductDetails? = null
+    private val _billingConnectionState = MutableStateFlow(false)
+    override suspend fun startBillingConnection() {
+        billingClientManager.startBillingConnection(_billingConnectionState)
+    }
+
+    override suspend fun terminateBillingConnection() {
+        billingClientManager.terminateBillingConnection()
+    }
 
     // observer product details
     override suspend fun getSubscriptionDetail(){

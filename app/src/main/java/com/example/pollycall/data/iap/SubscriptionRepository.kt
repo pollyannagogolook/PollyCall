@@ -16,4 +16,6 @@ interface SubscriptionRepository {
     suspend fun getSubscriptionDetail()
     fun getPurchases(): Flow<List<Purchase>>
     suspend fun purchaseSubscription(activity: Activity)
+    suspend fun startBillingConnection()
+    suspend fun terminateBillingConnection()
 }
