@@ -1,4 +1,4 @@
-package com.example.pollycall.data.iap
+package com.example.pollycall.data.iap.purchase
 
 import android.app.Activity
 import com.android.billingclient.api.BillingFlowParams

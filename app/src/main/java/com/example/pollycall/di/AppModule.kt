@@ -2,10 +2,8 @@ package com.example.pollycall.di
 
 import com.example.pollycall.data.PollyCallRepository
 import com.example.pollycall.data.PollyCallRepositoryImpl
-import com.example.pollycall.data.iap.SubscriptionRepository
-import com.example.pollycall.data.iap.SubscriptionRepositoryImpl
-import com.example.pollycall.data.local.CallDao
-import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import com.example.pollycall.data.iap.purchase.SubscriptionRepository
+import com.example.pollycall.data.iap.purchase.SubscriptionRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

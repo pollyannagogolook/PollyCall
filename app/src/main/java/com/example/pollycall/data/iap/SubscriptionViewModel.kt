@@ -2,19 +2,11 @@ package com.example.pollycall.data.iap
 
 import android.app.Activity
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.BillingFlowParams
-import com.android.billingclient.api.ProductDetails
-import com.android.billingclient.api.ProductDetails.SubscriptionOfferDetails
-import com.android.billingclient.api.Purchase
-import com.example.pollycall.data.MainState
-import com.example.pollycall.utils.Constants.Companion.IAP_TAG
+import com.example.pollycall.data.iap.purchase.BillingClientManager
+import com.example.pollycall.data.iap.purchase.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

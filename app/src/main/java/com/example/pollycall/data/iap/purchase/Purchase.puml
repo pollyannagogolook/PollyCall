@@ -1,0 +1,60 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class PollyCallApplication{
++ application: Application
+}
+
+interface SubscriptionRepository {
+    + getSubscriptionDetail(): Flow<ProductDetails?>
+    + getPurchases(): Flow<List<Purchase>>
+    + purchaseSubscription(activity: Activity)
+    + startBillingConnection()
+    + terminateBillingConnection()
+ }
+
+class SubscriptionRepositoryImpl {
++ getSubscriptionDetail: Flow<ProductDetails?>
++ billingConnectionState: MutableStateflow<Boolean>
+
++ getSubscriptionDetail(): Flow<ProductDetails?>
++ getPurchases(): Flow<List<Purchase>>
++ purchaseSubscription(activity: Activity)
++ startBillingConnection()
++ terminateBillingConnection()
+}
+
+
+class BillingClientManager{
++ context: Context
++ productDetails: MutableStateFlow<ProductDetails?>
++ purchases: MutableStateFlow<List<Purchase>>
++ isNewPurchaseAcknowledged: MutableStateFlow<Boolean>
++ billingClient: BillingClient
+
++ startConnection(billingClientStateListener: BillingClientStateListener)
++ purchaseSubscription(activity: Activity, productDetails: ProductDetails)
++ queryPurchases()
++ acknowledgePurchase(purchase: Purchase)
++ endConnection()
++ queryProductDetails()
++ onPurchaseUpdated(purchase: Purchase)
++ onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<SkuDetails>?)
+}
+
+
+class SubscriptionViewModel{
++ currentPurchaseFlow = MutableStateFlow<Purchase?>(null)
++ buy(activity: Activity)
++ onCleared()
+}
+
+
+
+BillingClientManager  -- PollyCallApplication
+SubscriptionRepository *.. BillingClientManager
+SubscriptionRepository <|.. SubscriptionRepositoryImpl
+SubscriptionViewModel ..* SubscriptionRepository
+LoginPageFragment *-- SubscriptionViewModel
+
+@enduml

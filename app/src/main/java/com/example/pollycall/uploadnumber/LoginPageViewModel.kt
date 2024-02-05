@@ -3,8 +3,7 @@ package com.example.pollycall.uploadnumber
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.android.billingclient.api.BillingFlowParams
-import com.example.pollycall.data.iap.SubscriptionRepository
+import com.example.pollycall.data.iap.purchase.SubscriptionRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
