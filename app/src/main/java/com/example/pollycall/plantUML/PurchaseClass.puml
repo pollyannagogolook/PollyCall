@@ -26,6 +26,7 @@ class SubscriptionRepositoryImpl {
 
 
 class BillingClientManager{
+
 + context: Context
 + productDetails: MutableStateFlow<ProductDetails?>
 + purchases: MutableStateFlow<List<Purchase>>

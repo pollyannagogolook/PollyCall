@@ -1,4 +1,4 @@
-package com.example.pollycall.data.iap
+package com.example.pollycall.data.iap.entitlement
 
 import javax.inject.Inject
 

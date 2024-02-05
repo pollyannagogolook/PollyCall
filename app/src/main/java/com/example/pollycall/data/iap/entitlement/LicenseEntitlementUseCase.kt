@@ -1,9 +1,7 @@
-package com.example.pollycall.data.iap.license
+package com.example.pollycall.data.iap.entitlement
 
 import android.content.Context
-import com.example.pollycall.data.iap.Credential
-import com.example.pollycall.data.iap.IEntitlementStatusCallback
-import com.example.pollycall.data.iap.IEntitlementUseCase
+import com.example.pollycall.data.iap.license.LicenseEntitlementDataSource
 import javax.inject.Inject
 
 /**
@@ -12,7 +10,8 @@ import javax.inject.Inject
  * inject [LicenseEntitlementDataSource] to get the entitlement status.
  * **/
 
-class LicenseEntitlementUseCase @Inject constructor(dataSource: LicenseEntitlementDataSource): IEntitlementUseCase {
+class LicenseEntitlementUseCase @Inject constructor(dataSource: LicenseEntitlementDataSource):
+    IEntitlementUseCase {
     override suspend fun refreshEntitlement(callback: IEntitlementStatusCallback?) {
         TODO("Not yet implemented")
     }

@@ -1,0 +1,25 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+
+LoginPageFragment -> SubscriptionViewModel: purchaseSubscription()
+SubscriptionViewModel -> SubscriptionRepository: purchaseSubscription()
+
+SubscriptionRepository -> BillingClientManager: purchaseSubscription()
+activate BillingClientManager
+
+BillingClientManager -> BillingClientManager: launchBillingFlow()
+BillingClientManager --> BillingClientManager: onPurchasesUpdated()
+deactivate BillingClientManager
+
+BillingClientManager --> SubscriptionRepository: update purchase details
+
+activate SubscriptionRepository
+SubscriptionRepository --> SubscriptionViewModel: update purchase details
+deactivate SubscriptionRepository
+
+BillingClientManager --> BillingClientManager: acknowledgePurchase()
+
+
+
+@enduml

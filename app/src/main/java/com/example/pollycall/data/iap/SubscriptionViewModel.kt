@@ -22,11 +22,12 @@ class SubscriptionViewModel @Inject constructor(
      * This is used to check if the user has any subscription. If [userCurrentSubscriptionFlow] gets updated,
      * should show the user the subscription screen.
      * */
-    val currentPurchaseFlow = subscriptionRepository.getPurchases()
+
 
     init {
         viewModelScope.launch {
             subscriptionRepository.startBillingConnection()
+            onPurchaseObserve()
         }
     }
 
@@ -47,6 +48,15 @@ class SubscriptionViewModel @Inject constructor(
         }
     }
 
+
+    private suspend fun onPurchaseObserve() {
+        subscriptionRepository.getPurchases().collect{ newPurchase ->
+            // should save credentials
+            // should enable premium features
+
+        }
+
+    }
 
     override fun onCleared() {
         super.onCleared()
