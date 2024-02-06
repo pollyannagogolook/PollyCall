@@ -1,5 +1,9 @@
 package com.example.pollycall.data.iap.prefs
 
+import android.app.Application
+import android.content.Context
+import com.example.pollycall.di.PollyCallApplication
+
 object PrefsIap {
     const val PREF_NAME = "iap_prefs"
     const val PREF_KEY_IAP_SUBSCRIPTION_STATUS = "iap_subscription_status"

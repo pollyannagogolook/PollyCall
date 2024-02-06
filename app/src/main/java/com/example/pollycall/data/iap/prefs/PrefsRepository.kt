@@ -2,6 +2,7 @@ package com.example.pollycall.data.iap.prefs
 
 import android.app.Application
 import android.content.Context
+import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
 import javax.inject.Inject
 
@@ -53,6 +54,28 @@ class PrefsRepository @Inject constructor(module: SharedPrefsModule) {
         }
 
 
+    }
+
+    fun remove(vararg keys: String) {
+        sharedPreferences.edit().apply{
+            keys.forEach { remove(it) }
+            apply()
+        }
+    }
+
+    fun <T> apply(key: String, value: T) {
+        sharedPreferences.edit().put(key, value).apply()
+    }
+
+    fun <T> SharedPreferences.Editor.put(key: String, value: T): SharedPreferences.Editor {
+        when (value) {
+            is String -> putString(key, value)
+            is Boolean -> putBoolean(key, value)
+            is Long -> putLong(key, value)
+            is Int -> putInt(key, value)
+            else -> throw UnsupportedOperationException("[PrefsRepository] apply unsupported type: $key, $value")
+        }
+        return this
     }
     fun getString(key: String, def: String? = null): String? = sharedPreferences.getString(key, def ?: defFactory?.getString(key))
 

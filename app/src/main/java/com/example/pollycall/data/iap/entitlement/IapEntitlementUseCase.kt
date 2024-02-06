@@ -1,8 +1,13 @@
 package com.example.pollycall.data.iap.entitlement
 
 import android.content.Context
+import com.android.billingclient.api.BillingClient
+import com.example.pollycall.data.iap.prefs.PrefsIap.PREF_KEY_OEM_PRODUCT_ID
 import com.example.pollycall.data.iap.prefs.PrefsIap.PREF_KEY_SUB_UPDATE_TIME
 import com.example.pollycall.data.iap.prefs.PrefsRepository
+import com.example.pollycall.data.iap.purchase.BillingClientManager
+import com.example.pollycall.utils.Constants.Companion.DEFAULT_PRODUCT_ID
+import com.example.pollycall.utils.ProcessManager
 import javax.inject.Inject
 
 
@@ -13,11 +18,28 @@ import javax.inject.Inject
  * */
 
 class IapEntitlementUseCase @Inject constructor(
+    private val processManager: ProcessManager,
     delegateUseCase: IEntitlementUseCase,
+    private val billingClientManager: BillingClientManager,
     private val repository: PrefsRepository
 ) : IEntitlementUseCase by delegateUseCase {
+
+
+    // when user get purchase, enable premium features
     override suspend fun refreshEntitlement(callback: IEntitlementStatusCallback?) {
-        TODO("Not yet implemented")
+        val productId = repository.getString(PREF_KEY_SUB_UPDATE_TIME, "") ?: DEFAULT_PRODUCT_ID
+
+        billingClientManager.purchases.collect{ purchaseList ->
+            if (purchaseList.isNotEmpty()){
+                saveCredential(Credential.Iap(productId))
+                enablePremiumFeatures()
+            } else {
+                val isFirstTimeExpired = checkIsEntitlementExpired()
+                disablePremiumFeatures()
+                if (isFirstTimeExpired) processManager.handleLicenseExpired()
+            }
+            callback?.onResult(true)
+        }
     }
 
     override fun hasLocalLoginHistory(): Boolean {
@@ -25,20 +47,25 @@ class IapEntitlementUseCase @Inject constructor(
     }
 
     override fun isEntitled(): Boolean {
-        TODO("Not yet implemented")
+        return repository.getString(PREF_KEY_SUB_UPDATE_TIME, "")?.isNotEmpty() ?: false
     }
 
     override fun checkIsEntitlementExpired(): Boolean {
-        TODO("Not yet implemented")
+        return !isEntitled() && hasLocalLoginHistory()
     }
 
 
     override fun disablePremiumFeatures() {
-        TODO("Not yet implemented")
+       repository.remove(PREF_KEY_OEM_PRODUCT_ID)
     }
 
 
     override fun saveCredential(credential: Credential) {
-        TODO("Not yet implemented")
+        if (credential is Credential.Iap) {
+            repository.apply {
+                apply(PREF_KEY_OEM_PRODUCT_ID, credential.productId)
+                apply(PREF_KEY_SUB_UPDATE_TIME, System.currentTimeMillis())
+            }
+        } else throw IllegalArgumentException("credential type not support")
     }
 }
