@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/uploadNumberPage"
-        android:name="com.example.pollycall.uploadnumber.UploadNumberPage"
+        android:name="com.pollyanna.pollycall.uploadnumber.UploadNumberPage"
         android:label="fragment_upload_number_page"
         tools:layout="@layout/fragment_upload_number_page" />
     <fragment
         android:id="@+id/subscriptionPage"
-        android:name="com.example.pollycall.SubscriptionPage"
+        android:name="com.pollyanna.pollycall.SubscriptionPage"
         android:label="fragment_subscription_page"
         tools:layout="@layout/fragment_subscription_page" />
 </navigation>

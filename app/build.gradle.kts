@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.pollycall"
+    namespace = "com.pollyanna.pollycall"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.pollycall"
+        applicationId = "com.pollyanna.pollycall"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
@@ -71,6 +71,7 @@ dependencies {
 
     // hilt
     implementation("com.google.dagger:hilt-android:2.44")
+    implementation("androidx.test.ext:junit-ktx:1.1.5")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
     implementation("androidx.hilt:hilt-navigation-fragment:1.0.0")
 
