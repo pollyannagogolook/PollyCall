@@ -1,8 +1,8 @@
-package com.pollyanna.pollycall.data.iap.prefs
+package com.pollyanna.pollycall.iap.prefs
 
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
-import com.pollyanna.pollycall.data.iap.prefs.SharedPrefsModule
+import com.pollyanna.pollycall.iap.prefs.SharedPrefsModule
 import javax.inject.Inject
 
 /**

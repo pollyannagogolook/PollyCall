@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.entitlement
+package com.pollyanna.pollycall.iap.entitlement
 
 import android.content.Context
 

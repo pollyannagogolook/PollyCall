@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.purchase
+package com.pollyanna.pollycall.iap.purchase
 
 import android.app.Activity
 import com.android.billingclient.api.Purchase

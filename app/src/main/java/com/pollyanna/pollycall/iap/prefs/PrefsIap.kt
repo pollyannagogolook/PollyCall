@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.prefs
+package com.pollyanna.pollycall.iap.prefs
 
 object PrefsIap {
     const val PREF_NAME = "iap_prefs"

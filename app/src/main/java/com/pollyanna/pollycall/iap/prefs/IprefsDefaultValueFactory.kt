@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.prefs
+package com.pollyanna.pollycall.iap.prefs
 
 interface IPrefsDefaultValueFactory {
     fun getString(key: String): String?

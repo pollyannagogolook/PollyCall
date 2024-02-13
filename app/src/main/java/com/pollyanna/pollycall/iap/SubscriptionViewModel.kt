@@ -1,11 +1,14 @@
-package com.pollyanna.pollycall.data.iap
+package com.pollyanna.pollycall.iap
 
 import android.app.Activity
 import android.app.Application
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.pollyanna.pollycall.data.iap.purchase.BillingClientManager
-import com.pollyanna.pollycall.data.iap.purchase.SubscriptionRepository
+import com.pollyanna.pollycall.iap.entitlement.Credential
+import com.pollyanna.pollycall.iap.purchase.BillingClientManager
+import com.pollyanna.pollycall.iap.purchase.SubscriptionRepository
+import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -30,11 +33,10 @@ class SubscriptionViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             subscriptionRepository.startBillingConnection()
+            subscriptionRepository.getSubscriptionDetail()
             onPurchaseObserve()
         }
     }
-
-
 
 
     /****
@@ -53,7 +55,7 @@ class SubscriptionViewModel @Inject constructor(
 
 
     private suspend fun onPurchaseObserve() {
-        subscriptionRepository.getPurchases().collect{ newPurchase ->
+        subscriptionRepository.getPurchases().collect { newPurchase ->
             // should save credentials
 
             // should enable premium features
@@ -61,6 +63,7 @@ class SubscriptionViewModel @Inject constructor(
         }
 
     }
+
     private fun showSuccessfulPurchase() {
         // show successful purchase
         _showLottie.value = false

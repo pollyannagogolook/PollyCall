@@ -90,6 +90,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:text="Get Premium"
+            android:translationZ="10dp"
             android:padding="@dimen/standard_dimen"
             android:layout_marginBottom="@dimen/standard_dimen"
             android:background="@color/background"

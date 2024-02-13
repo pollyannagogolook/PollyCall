@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.license
+package com.pollyanna.pollycall.iap.license
 
 object PrefLicense {
     const val PREF_NAME = "prefs_license"

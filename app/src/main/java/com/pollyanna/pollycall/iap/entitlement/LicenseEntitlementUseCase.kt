@@ -1,10 +1,10 @@
-package com.pollyanna.pollycall.data.iap.entitlement
+package com.pollyanna.pollycall.iap.entitlement
 
 import android.content.Context
-import com.pollyanna.pollycall.data.iap.entitlement.Credential
-import com.pollyanna.pollycall.data.iap.entitlement.IEntitlementStatusCallback
-import com.pollyanna.pollycall.data.iap.entitlement.IEntitlementUseCase
-import com.pollyanna.pollycall.data.iap.license.LicenseEntitlementDataSource
+import com.pollyanna.pollycall.iap.entitlement.Credential
+import com.pollyanna.pollycall.iap.entitlement.IEntitlementStatusCallback
+import com.pollyanna.pollycall.iap.entitlement.IEntitlementUseCase
+import com.pollyanna.pollycall.iap.license.LicenseEntitlementDataSource
 import javax.inject.Inject
 
 /**

@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data.iap.purchase
+package com.pollyanna.pollycall.iap.purchase
 
 import android.app.Activity
 import android.app.Application
@@ -26,7 +26,7 @@ import kotlin.coroutines.resume
 
 /**
  * Author: Pollyanna Wu
- * This is a wrapper to isolate the Google Play Billing's [BillingClient] methods needed
+ * This is a singleton object to isolate the Google Play Billing's [BillingClient] methods needed
  * **/
 class BillingClientManager @Inject constructor(context: Application) : PurchasesUpdatedListener,
     ProductDetailsResponseListener {
@@ -64,10 +64,9 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                     Log.i(IAP_TAG, "Billing response OK")
 
                     // The BillingClient is ready. You can query purchases here.
-                    billingConnectionState.value = true
                     queryPurchases()
                     queryProductDetails()
-
+                    billingConnectionState.value = true
                 } else {
                     Log.e(IAP_TAG, billingResult.debugMessage)
                 }
@@ -76,30 +75,24 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
     }
 
     // launch purchase flow
-    suspend fun purchaseSubscription(
+    fun purchaseSubscription(
         activity: Activity,
         productDetails: ProductDetails
-    ): BillingResult? = suspendCancellableCoroutine { continuation ->
-        productDetails.takeIf { productDetails ->
-            productDetails.subscriptionOfferDetails.isNullOrEmpty() && productDetails.subscriptionOfferDetails?.get(
-                0
-            )?.offerToken != null
-        }?.let { productDetails ->
+    ) {
+//        val productDetailsParamsList = listOf(
+//            productDetails.subscriptionOfferDetails?.first()?.offerToken?.let { offerToken ->
+//                BillingFlowParams.ProductDetailsParams.newBuilder()
+//                    .setProductDetails(productDetails)
+//                    .setOfferToken(offerToken)
+//                    .build()
+//            }
+//        )
+//
+//        val billingFlowParams = BillingFlowParams.newBuilder()
+//            .setProductDetailsParamsList(productDetailsParamsList)
+//            .build()
+//        billingClient.launchBillingFlow(activity, billingFlowParams)
 
-            val productDetailsParamsList = listOf(
-                productDetails.subscriptionOfferDetails?.first()?.offerToken?.let { offerToken ->
-                    BillingFlowParams.ProductDetailsParams.newBuilder()
-                        .setProductDetails(productDetails)
-                        .setOfferToken(offerToken)
-                        .build()
-                }
-            )
-
-            val billingFlowParams = BillingFlowParams.newBuilder()
-                .setProductDetailsParamsList(productDetailsParamsList)
-                .build()
-            continuation.resumeSafely(billingClient.launchBillingFlow(activity, billingFlowParams))
-        }
 
     }
 
@@ -110,6 +103,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
             Log.e(IAP_TAG, "Billing Client not ready")
         }
         // Query for existing subscription products that have been purchased.
+
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         ) { billingResult, purchaseList ->
@@ -119,6 +113,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                 } else {
                     _purchases.value = emptyList()
                 }
+                Log.i(IAP_TAG, "Querying purchases: $purchaseList")
             } else {
                 Log.e(IAP_TAG, "Error querying purchases: ${billingResult.debugMessage}")
             }
@@ -132,12 +127,14 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
 
         productList.add(
             QueryProductDetailsParams.Product.newBuilder()
+                .setProductId("polly_call_premium")
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
         )
 
         params.setProductList(productList).let { productDetailsParams ->
-            return billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
+            Log.i(IAP_TAG, "Querying product details: ${productList.first().zza()}")
+            billingClient.queryProductDetailsAsync(productDetailsParams.build(), this)
         }
 
 
@@ -152,6 +149,7 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
         if (billingResult.responseCode == BillingClient.BillingResponseCode.OK && !purchases.isNullOrEmpty()) {
 
             // if the purchase list is not empty, then acknowledge the purchase
+            Log.i(IAP_TAG, "Purchases updated: $purchases")
             _purchases.value = purchases
             for (purchase in purchases) {
                 acknowledgePurchase(purchase)
@@ -193,11 +191,21 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
 
         when (responseCode) {
             BillingClient.BillingResponseCode.OK -> {
+
                 var newMap = emptyMap<String, ProductDetails>()
                 if (productDetailsList.isNotEmpty()) {
                     newMap = productDetailsList.associateBy { it.productId }
+                } else {
+                    Log.e(
+                        IAP_TAG,
+                        "onProductDetailsResponse: " +
+                                "Found null or empty ProductDetails. " +
+                                "Check to see if the Products you requested are correctly " +
+                                "published in the Google Play Console."
+                    )
                 }
                 _productWithProductDetails.value = newMap
+                Log.i(IAP_TAG, "Product details updated: ${_productWithProductDetails.value}")
             }
 
             else -> {
