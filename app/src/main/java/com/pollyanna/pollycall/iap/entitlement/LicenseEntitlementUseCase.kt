@@ -5,6 +5,7 @@ import com.pollyanna.pollycall.iap.entitlement.Credential
 import com.pollyanna.pollycall.iap.entitlement.IEntitlementStatusCallback
 import com.pollyanna.pollycall.iap.entitlement.IEntitlementUseCase
 import com.pollyanna.pollycall.iap.license.LicenseEntitlementDataSource
+import com.pollyanna.pollycall.iap.license.PrefLicense
 import javax.inject.Inject
 
 /**
@@ -13,8 +14,9 @@ import javax.inject.Inject
  * inject [LicenseEntitlementDataSource] to get the entitlement status.
  * **/
 
-class LicenseEntitlementUseCase @Inject constructor(dataSource: LicenseEntitlementDataSource):
-    IEntitlementUseCase {
+class LicenseEntitlementUseCase @Inject constructor(delegateUseCase: IEntitlementUseCase):
+    IEntitlementUseCase by delegateUseCase{
+
     override suspend fun refreshEntitlement(callback: IEntitlementStatusCallback?) {
         TODO("Not yet implemented")
     }
@@ -44,6 +46,10 @@ class LicenseEntitlementUseCase @Inject constructor(dataSource: LicenseEntitleme
     }
 
     override fun saveCredential(credential: Credential) {
-        TODO("Not yet implemented")
+        (credential as? Credential.License)?.let {
+            if (it.licenseKey.isEmpty() || it.uid.isEmpty()) {
+                throw Exception("saveCredential: licenseKey or uid is empty")
+            }
+        } ?: throw Exception("saveCredential: credential is null or not License type")
     }
 }

@@ -16,35 +16,34 @@ import javax.inject.Inject
  * */
 
 class IapEntitlementUseCase @Inject constructor(
-    private val processManager: ProcessManager,
-    delegateUseCase: IEntitlementUseCase,
-    private val billingClientManager: BillingClientManager,
-    private val repository: PrefsRepository
+    delegateUseCase: IEntitlementUseCase
 ) : IEntitlementUseCase by delegateUseCase {
 
 
     // when user get purchase, enable premium features
     override suspend fun refreshEntitlement(callback: IEntitlementStatusCallback?) {
-        val productId = repository.getString(PREF_KEY_SUB_UPDATE_TIME, "") ?: PRODUCT_ID
-
-        billingClientManager.purchases.collect{ purchaseList ->
-            if (purchaseList.isNotEmpty()){
-                saveCredential(Credential.Iap(productId))
-                enablePremiumFeatures()
-            } else {
-                val isFirstTimeExpired = checkIsEntitlementExpired()
-                disablePremiumFeatures()
-                if (isFirstTimeExpired) processManager.handleLicenseExpired()
-            }
-            callback?.onResult(true)
-        }
+//        val productId = PRODUCT_ID
+//
+//        billingClientManager.purchases.collect{ purchaseList ->
+//            if (purchaseList.isNotEmpty()){
+//                saveCredential(Credential.Iap(productId))
+//                enablePremiumFeatures()
+//            } else {
+//                val isFirstTimeExpired = checkIsEntitlementExpired()
+//                disablePremiumFeatures()
+//                if (isFirstTimeExpired) processManager.handleLicenseExpired()
+//            }
+//            callback?.onResult(true)
+//        }
     }
     override fun hasLocalLoginHistory(): Boolean {
-        return repository.getLong(PREF_KEY_SUB_UPDATE_TIME, 0L) != 0L
+//        return repository.getLong(PREF_KEY_SUB_UPDATE_TIME, 0L) != 0L
+        return false
     }
 
     override fun isEntitled(): Boolean {
-        return repository.getString(PREF_KEY_SUB_UPDATE_TIME, "")?.isNotEmpty() ?: false
+//        return repository.getString(PREF_KEY_SUB_UPDATE_TIME, "")?.isNotEmpty() ?: false
+        return false
     }
 
     override fun checkIsEntitlementExpired(): Boolean {
@@ -53,16 +52,16 @@ class IapEntitlementUseCase @Inject constructor(
 
 
     override fun disablePremiumFeatures() {
-       repository.remove(PREF_KEY_OEM_PRODUCT_ID)
+//       repository.remove(PREF_KEY_OEM_PRODUCT_ID)
     }
 
 
     override fun saveCredential(credential: Credential) {
-        if (credential is Credential.Iap) {
-            repository.apply {
-                apply(PREF_KEY_OEM_PRODUCT_ID, credential.productId)
-                apply(PREF_KEY_SUB_UPDATE_TIME, System.currentTimeMillis())
-            }
-        } else throw IllegalArgumentException("credential type not support")
+//        if (credential is Credential.Iap) {
+//            repository.apply {
+//                apply(PREF_KEY_OEM_PRODUCT_ID, credential.productId)
+//                apply(PREF_KEY_SUB_UPDATE_TIME, System.currentTimeMillis())
+//            }
+//        } else throw IllegalArgumentException("credential type not support")
     }
 }

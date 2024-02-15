@@ -94,7 +94,6 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                 .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
             try {
-
                 billingClient.launchBillingFlow(activity, billingFlowParams)
             }catch (e: Exception){
                 Log.e(IAP_TAG, "Error launching billing flow: ${e.message}")

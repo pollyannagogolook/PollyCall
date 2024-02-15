@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.pollyanna.pollycall.di.PollyCallApplication
-import com.pollyanna.pollycall.uploadnumber.LoginPage
 import javax.inject.Inject
 import javax.inject.Singleton
 

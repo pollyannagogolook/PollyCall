@@ -6,9 +6,13 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pollyanna.pollycall.iap.entitlement.Credential
+import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager
+import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager.USE_CASE_IAP
 import com.pollyanna.pollycall.iap.purchase.BillingClientManager
 import com.pollyanna.pollycall.iap.purchase.SubscriptionRepository
+import com.pollyanna.pollycall.utils.Constants
 import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
+import com.pollyanna.pollycall.utils.Constants.Companion.PRODUCT_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -26,8 +30,6 @@ class SubscriptionViewModel @Inject constructor(
      * This is used to check if the user has any subscription. If [userCurrentSubscriptionFlow] gets updated,
      * should show the user the subscription screen.
      * */
-    private val _showLottie = MutableStateFlow<Boolean>(false)
-    var showLottie = _showLottie
 
 
     init {
@@ -56,18 +58,14 @@ class SubscriptionViewModel @Inject constructor(
 
     private suspend fun onPurchaseObserve() {
         subscriptionRepository.getPurchases().collect { newPurchase ->
-            // should save credentials
-
-            // should enable premium features
-            showSuccessfulPurchase()
+            if (newPurchase.isEmpty()) {
+                return@collect
+            }
+            OemEntitlementManager.saveCredential(Credential.Iap(PRODUCT_ID), USE_CASE_IAP)
+            OemEntitlementManager.enablePremiumFeatures(USE_CASE_IAP)
         }
-
     }
 
-    private fun showSuccessfulPurchase() {
-        // show successful purchase
-        _showLottie.value = false
-    }
 
     override fun onCleared() {
         super.onCleared()
