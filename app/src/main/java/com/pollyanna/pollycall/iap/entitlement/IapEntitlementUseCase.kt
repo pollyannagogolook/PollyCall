@@ -4,7 +4,7 @@ import com.pollyanna.pollycall.iap.prefs.PrefsIap.PREF_KEY_OEM_PRODUCT_ID
 import com.pollyanna.pollycall.iap.prefs.PrefsIap.PREF_KEY_SUB_UPDATE_TIME
 import com.pollyanna.pollycall.iap.prefs.PrefsRepository
 import com.pollyanna.pollycall.iap.purchase.BillingClientManager
-import com.pollyanna.pollycall.utils.Constants.Companion.DEFAULT_PRODUCT_ID
+import com.pollyanna.pollycall.utils.Constants.Companion.PRODUCT_ID
 import com.pollyanna.pollycall.utils.ProcessManager
 import javax.inject.Inject
 
@@ -25,7 +25,7 @@ class IapEntitlementUseCase @Inject constructor(
 
     // when user get purchase, enable premium features
     override suspend fun refreshEntitlement(callback: IEntitlementStatusCallback?) {
-        val productId = repository.getString(PREF_KEY_SUB_UPDATE_TIME, "") ?: DEFAULT_PRODUCT_ID
+        val productId = repository.getString(PREF_KEY_SUB_UPDATE_TIME, "") ?: PRODUCT_ID
 
         billingClientManager.purchases.collect{ purchaseList ->
             if (purchaseList.isNotEmpty()){

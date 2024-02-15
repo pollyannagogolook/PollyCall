@@ -15,6 +15,7 @@ import com.android.billingclient.api.PurchasesUpdatedListener
 import com.android.billingclient.api.QueryProductDetailsParams
 import com.android.billingclient.api.QueryPurchasesParams
 import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
+import com.pollyanna.pollycall.utils.Constants.Companion.PRODUCT_ID
 import com.pollyanna.pollycall.utils.throwIfDebugBuild
 import kotlinx.coroutines.CancellableContinuation
 
@@ -79,24 +80,34 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
         activity: Activity,
         productDetails: ProductDetails
     ) {
-//        val productDetailsParamsList = listOf(
-//            productDetails.subscriptionOfferDetails?.first()?.offerToken?.let { offerToken ->
-//                BillingFlowParams.ProductDetailsParams.newBuilder()
-//                    .setProductDetails(productDetails)
-//                    .setOfferToken(offerToken)
-//                    .build()
-//            }
-//        )
-//
-//        val billingFlowParams = BillingFlowParams.newBuilder()
-//            .setProductDetailsParamsList(productDetailsParamsList)
-//            .build()
-//        billingClient.launchBillingFlow(activity, billingFlowParams)
+        val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
+        offerToken?.let {
+            Log.i(IAP_TAG, "Offer token: $offerToken")
+            val productDetailsParamsList = listOf(
+                BillingFlowParams.ProductDetailsParams.newBuilder()
+                    .setProductDetails(productDetails)
+                    .setOfferToken(offerToken)
+                    .build()
+            )
+
+            val billingFlowParams = BillingFlowParams.newBuilder()
+                .setProductDetailsParamsList(productDetailsParamsList)
+                .build()
+            try {
+
+                billingClient.launchBillingFlow(activity, billingFlowParams)
+            }catch (e: Exception){
+                Log.e(IAP_TAG, "Error launching billing flow: ${e.message}")
+                e.throwIfDebugBuild()
+            }
+
+        }
+
 
 
     }
 
-    // Query Google Play Billing for existing purchases.
+    // Provide information about the product to the user
     // New purchase will be notified through onPurchasesUpdated
     fun queryPurchases() {
         if (!billingClient.isReady) {
@@ -120,14 +131,14 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
         }
     }
 
-    // Query Google Play Billing for products available to sell and present them to the user.
+    // Provide product information to user.
     fun queryProductDetails() {
         val params = QueryProductDetailsParams.newBuilder()
         val productList = mutableListOf<QueryProductDetailsParams.Product>()
 
         productList.add(
             QueryProductDetailsParams.Product.newBuilder()
-                .setProductId("polly_call_premium")
+                .setProductId(PRODUCT_ID)
                 .setProductType(BillingClient.ProductType.SUBS)
                 .build()
         )

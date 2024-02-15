@@ -7,7 +7,7 @@ class Constants {
         const val UNKNOWN_ERROR = "Unknown error"
         const val DETECT_CALL_TAG = "DetectCall"
         const val IAP_TAG = "Subscription PollyCall"
-        const val DEFAULT_PRODUCT_ID = "polly_mock_id"
+        const val PRODUCT_ID = "polly_call_premium"
 
         const val PURCHASE_SUCCESS = 0
         const val PURCHASE_FAILED = 1
