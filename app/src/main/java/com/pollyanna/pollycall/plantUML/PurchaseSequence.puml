@@ -2,15 +2,32 @@
 'https://plantuml.com/sequence-diagram
 UploadNumberPage -> SubscriptionViewModel: onCreate()
 
-SubscriptionViewModel -> BillingClientManager: startConnection()
+'initiate billing client connection
+SubscriptionViewModel ->  SubscriptionRepository: init()
+SubscriptionRepository -> BillingClientManager: startConnection()
+
+activate BillingClientManager
+BillingClientManager --> SubscriptionViewModel: callback connection status
+
+
+'query purchase and product details
 activate BillingClientManager
 BillingClientManager -> BillingClientManager: queryPurchase()
+
 BillingClientManager -> BillingClientManager: queryProductDetails()
+
+BillingClientManager --> SubscriptionViewModel: observe ProductDetails
 deactivate BillingClientManager
 
 
-UploadNumberPage -> SubscriptionViewModel: purchaseSubscription()
 
+' user can purchase subscription only if product details is not null and connection is established
+alt product details != null
+    SubscriptionViewModel --> UploadNumberPage: enable purchase button
+    UploadNumberPage -> SubscriptionViewModel: purchaseSubscription()
+
+
+activate SubscriptionViewModel
 SubscriptionViewModel -> SubscriptionRepository: purchaseSubscription()
 activate SubscriptionRepository
 SubscriptionRepository -> BillingClientManager: purchaseSubscription()
@@ -21,15 +38,19 @@ deactivate BillingClientManager
 
 BillingClientManager --> BillingClientManager: onPurchasesUpdated()
 activate BillingClientManager
-BillingClientManager --> SubscriptionRepository: update purchase details
-
-activate SubscriptionRepository
-SubscriptionRepository --> SubscriptionViewModel: update purchase details
+BillingClientManager -->  SubscriptionViewModel: observe Purchases
 deactivate SubscriptionRepository
 BillingClientManager --> BillingClientManager: acknowledgePurchase()
 deactivate BillingClientManager
-SubscriptionViewModel -> IEntitlementManager: saveCredentials()
-SubscriptionViewModel -> IEntitlementManager: enablePremiumFeatures()
 
+alt responseCode == OK
+    activate SubscriptionViewModel
+    SubscriptionViewModel -> IEntitlementManager: saveCredentials()
+    activate IEntitlementManager
+    SubscriptionViewModel -> IEntitlementManager: enablePremiumFeatures()
+    deactivate IEntitlementManager
+    deactivate SubscriptionViewModel
+end
+end
 
 @enduml

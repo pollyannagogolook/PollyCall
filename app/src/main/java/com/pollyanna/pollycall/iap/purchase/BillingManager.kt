@@ -96,10 +96,7 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
                 Log.e(IAP_TAG, "Error launching billing flow: ${e.message}")
                 e.throwIfDebugBuild()
             }
-
         }
-
-
     }
 
     // Provide information about the product to the user
@@ -215,13 +212,5 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
         billingClient.endConnection()
     }
 
-
-    private fun <T> CancellableContinuation<T>.resumeSafely(value: T) {
-        try {
-            if (this.isActive) resume(value)
-        } catch (e: Exception) {
-            e.throwIfDebugBuild()
-        }
-    }
 
 }
