@@ -21,7 +21,6 @@ import kotlinx.coroutines.CancellableContinuation
 
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 
@@ -29,8 +28,9 @@ import kotlin.coroutines.resume
  * Author: Pollyanna Wu
  * This is a singleton object to isolate the Google Play Billing's [BillingClient] methods needed
  * **/
-class BillingClientManager @Inject constructor(context: Application) : PurchasesUpdatedListener,
+class BillingManager @Inject constructor(context: Application) : PurchasesUpdatedListener,
     ProductDetailsResponseListener {
+
 
     // New Subscription ProductDetails
     private val _productWithProductDetails =
@@ -52,24 +52,21 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
         .build()
 
     // launch a connection to Google Play.
-    fun startBillingConnection(billingConnectionState: MutableStateFlow<Boolean>) {
+    fun startBillingConnection(isSuccessCallback: (Boolean) -> Unit) {
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingServiceDisconnected() {
                 // if the connection is lost, try to restart the connection
-                Log.e(IAP_TAG, "Billing Client Disconnected")
-                startBillingConnection(billingConnectionState)
+                isSuccessCallback(false)
+                startBillingConnection(isSuccessCallback)
             }
 
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                    Log.i(IAP_TAG, "Billing response OK")
-
-                    // The BillingClient is ready. You can query purchases here.
                     queryPurchases()
                     queryProductDetails()
-                    billingConnectionState.value = true
+                    isSuccessCallback(true)
                 } else {
-                    Log.e(IAP_TAG, billingResult.debugMessage)
+                    isSuccessCallback(false)
                 }
             }
         })
@@ -95,13 +92,12 @@ class BillingClientManager @Inject constructor(context: Application) : Purchases
                 .build()
             try {
                 billingClient.launchBillingFlow(activity, billingFlowParams)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 Log.e(IAP_TAG, "Error launching billing flow: ${e.message}")
                 e.throwIfDebugBuild()
             }
 
         }
-
 
 
     }

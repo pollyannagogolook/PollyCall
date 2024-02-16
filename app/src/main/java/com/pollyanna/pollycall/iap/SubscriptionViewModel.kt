@@ -2,16 +2,13 @@ package com.pollyanna.pollycall.iap
 
 import android.app.Activity
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.pollyanna.pollycall.iap.entitlement.Credential
 import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager
 import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager.USE_CASE_IAP
-import com.pollyanna.pollycall.iap.purchase.BillingClientManager
+import com.pollyanna.pollycall.iap.purchase.BillingManager
 import com.pollyanna.pollycall.iap.purchase.SubscriptionRepository
-import com.pollyanna.pollycall.utils.Constants
-import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import com.pollyanna.pollycall.utils.Constants.Companion.PRODUCT_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +19,7 @@ import javax.inject.Inject
 class SubscriptionViewModel @Inject constructor(
     application: Application,
     private var subscriptionRepository: SubscriptionRepository,
-    private var billingClient: BillingClientManager
+    private var billingClient: BillingManager
 ) : AndroidViewModel(application) {
 
     /**
@@ -30,14 +27,21 @@ class SubscriptionViewModel @Inject constructor(
      * This is used to check if the user has any subscription. If [userCurrentSubscriptionFlow] gets updated,
      * should show the user the subscription screen.
      * */
-
+    private val _billingConnectionState = MutableStateFlow(false)
+    val billingConnectionState = _billingConnectionState
 
     init {
         viewModelScope.launch {
-            subscriptionRepository.startBillingConnection()
+            startBillingConnection()
             subscriptionRepository.getSubscriptionDetail()
             onPurchaseObserve()
         }
+    }
+
+    private fun startBillingConnection() {
+            subscriptionRepository.startBillingConnection(){isSuccess ->
+                _billingConnectionState.value = isSuccess
+            }
     }
 
 

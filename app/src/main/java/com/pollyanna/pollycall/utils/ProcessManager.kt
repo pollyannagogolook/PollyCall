@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import com.pollyanna.pollycall.di.PollyCallApplication
+import com.pollyanna.pollycall.uploadnumber.UploadNumberPage
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -56,7 +57,7 @@ class ProcessManager @Inject constructor(val application: PollyCallApplication) 
         if (!isAppForeground) {
             clearAllTasks()
         } else {
-            val intent = Intent(context, LoginPage::class.java).apply {
+            val intent = Intent(context, UploadNumberPage::class.java).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
             context.startActivity(intent)

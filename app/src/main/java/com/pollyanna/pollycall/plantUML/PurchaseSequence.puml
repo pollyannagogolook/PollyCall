@@ -1,25 +1,35 @@
 @startuml
 'https://plantuml.com/sequence-diagram
+UploadNumberPage -> SubscriptionViewModel: onCreate()
 
-
-LoginPageFragment -> SubscriptionViewModel: purchaseSubscription()
-SubscriptionViewModel -> SubscriptionRepository: purchaseSubscription()
-
-SubscriptionRepository -> BillingClientManager: purchaseSubscription()
+SubscriptionViewModel -> BillingClientManager: startConnection()
 activate BillingClientManager
-
-BillingClientManager -> BillingClientManager: launchBillingFlow()
-BillingClientManager --> BillingClientManager: onPurchasesUpdated()
+BillingClientManager -> BillingClientManager: queryPurchase()
+BillingClientManager -> BillingClientManager: queryProductDetails()
 deactivate BillingClientManager
 
+
+UploadNumberPage -> SubscriptionViewModel: purchaseSubscription()
+
+SubscriptionViewModel -> SubscriptionRepository: purchaseSubscription()
+activate SubscriptionRepository
+SubscriptionRepository -> BillingClientManager: purchaseSubscription()
+deactivate SubscriptionRepository
+activate BillingClientManager
+BillingClientManager -> BillingClientManager: launchBillingFlow()
+deactivate BillingClientManager
+
+BillingClientManager --> BillingClientManager: onPurchasesUpdated()
+activate BillingClientManager
 BillingClientManager --> SubscriptionRepository: update purchase details
 
 activate SubscriptionRepository
 SubscriptionRepository --> SubscriptionViewModel: update purchase details
 deactivate SubscriptionRepository
-
 BillingClientManager --> BillingClientManager: acknowledgePurchase()
-
+deactivate BillingClientManager
+SubscriptionViewModel -> IEntitlementManager: saveCredentials()
+SubscriptionViewModel -> IEntitlementManager: enablePremiumFeatures()
 
 
 @enduml

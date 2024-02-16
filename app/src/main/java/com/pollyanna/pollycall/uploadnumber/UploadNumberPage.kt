@@ -40,6 +40,17 @@ class UploadNumberPage : Fragment() {
         var numberOwner = ""
         var isScam = false
 
+        // collect connection state
+        lifecycleScope.launch {
+            subscriptionViewModel.billingConnectionState.collect { connectionState ->
+                if (connectionState) {
+                    binding.premiumBtn.visibility = View.VISIBLE
+                } else {
+                    binding.premiumBtn.visibility = View.INVISIBLE
+                }
+            }
+        }
+
 
         // collect available products to sale flow
         lifecycleScope.launch {
@@ -110,16 +121,16 @@ class UploadNumberPage : Fragment() {
             subscriptionViewModel.buy(requireActivity())
         }
 
-        lifecycleScope.launch {
-            subscriptionViewModel.showLottie.collect { showLottie ->
-                if (showLottie) {
-                    binding.successAnimation.visibility = View.VISIBLE
-                    binding.successAnimation.playAnimation()
-                } else {
-                    binding.successAnimation.visibility = View.INVISIBLE
-                }
-            }
-        }
+//        lifecycleScope.launch {
+//            subscriptionViewModel.showLottie.collect { showLottie ->
+//                if (showLottie) {
+//                    binding.successAnimation.visibility = View.VISIBLE
+//                    binding.successAnimation.playAnimation()
+//                } else {
+//                    binding.successAnimation.visibility = View.INVISIBLE
+//                }
+//            }
+//        }
 
 
         return binding.root
