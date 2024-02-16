@@ -13,19 +13,18 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val repository: PollyCallRepository) : ViewModel() {
 
-    private val _inComingNumberFlow = repository.getScreenCall()
-    val inComingNumberFlow: StateFlow<String> = _inComingNumberFlow
 
     private var _phoneInfoFlow = MutableStateFlow<String>("")
     val phoneInfoFlow: StateFlow<String> = _phoneInfoFlow
 
+    init {
+        getPhoneInfo()
+    }
 
-    fun getPhoneInfo(phoneNumber: String) {
+    private fun getPhoneInfo() {
         viewModelScope.launch {
-            repository.searchScreenCall(phoneNumber).collect() { callResponse ->
-
+            repository.getSearchResponse().collect { callResponse ->
                 if (callResponse is CallResponse.Success) {
-
                     callResponse.data?.let {
                         _phoneInfoFlow.value =
                             "你接到一通來自 ${it.owner} 的電話，電話號碼為 ${it.number}"

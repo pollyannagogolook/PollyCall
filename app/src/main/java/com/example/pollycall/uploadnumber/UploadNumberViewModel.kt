@@ -18,12 +18,12 @@ class UploadNumberViewModel @Inject constructor(private val repository: PollyCal
         private const val TAG = "UploadNumberViewModel"
     }
 
-    private var _uploadResponseFlow = MutableStateFlow<CallResponse<Call>>(CallResponse.Loading())
+    private var _uploadResponseFlow = MutableStateFlow<CallResponse<Call?>>(CallResponse.Loading())
     val uploadResponseFlow = _uploadResponseFlow
 
         fun uploadNumber(call: Call){
             viewModelScope.launch {
-                _uploadResponseFlow.value = repository.uploadCallData(call).first()
+                _uploadResponseFlow.value = repository.uploadCallData(call)
                 Log.i(TAG, "uploadNumber: ${_uploadResponseFlow.value.message}")
             }
         }

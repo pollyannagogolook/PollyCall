@@ -1,21 +1,18 @@
 package com.example.pollycall.data
 
 import android.util.Log
-import androidx.compose.ui.layout.LookaheadLayout
 import com.example.pollycall.data.local.CallDao
 import com.example.pollycall.data.remote.PollyCallRemoteDataSource
+import com.example.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
+import com.example.pollycall.utils.Constants.Companion.UNKNOWN_ERROR
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Response
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -34,81 +31,111 @@ class PollyCallRepositoryImpl @Inject constructor(
 
 ) : PollyCallRepository {
 
-    companion object {
-        private const val TAG = "PollyCallRepositoryImpl"
-        private const val UNKNOWN_ERROR = "Unknown error"
-    }
 
-    private val phoneNumberFlow = MutableStateFlow<String>("")
+    private var _inComingNumber: String? = null
+    private var _phoneSearchResponse: CallResponse<Call?> = CallResponse.Loading()
 
-    override suspend fun searchScreenCall(number: String): Flow<CallResponse<Call?>> = flow {
+    override suspend fun searchScreenCall(inComingNumber: String){
 
-        // save number to flow
-        phoneNumberFlow.value = number
+        // save phone number
+        _inComingNumber = inComingNumber
 
-        // search call data in local database
-        val localCallData = callDao.getCallCache(number).first()
+        var numberInfo: CallResponse<Call?> = CallResponse.Loading()
 
-        // if there is no call data in local database, get call data from remote server
-        if (localCallData != null) {
-            emit(CallResponse.Success(localCallData))
-        } else {
-            try {
-                val response = remoteDataSource.getCallData(number)
-                response.data?.let { remoteCallData ->
-                    when (response) {
-                        is CallResponse.Success -> {
-                            callDao.saveCallCache(remoteCallData)
-                            Log.i(TAG, "searchScreenCall: ${remoteCallData.owner}")
-                        }
-                        is CallResponse.Error -> {
-                            emit(CallResponse.Error(response.message ?: UNKNOWN_ERROR))
-                            Log.e(TAG, "searchScreenCall: ${response.message}")
-                        }
-                        is CallResponse.Loading -> {
-                            emit(CallResponse.Loading())
-                            Log.i(TAG, "searchScreenCall: loading")
+        withContext(Dispatchers.IO) {
+            // search call data in local database
+            callDao.getCallCache(inComingNumber).first()?.let { localCache ->
+                numberInfo = CallResponse.Success(localCache)
+
+            } ?: run {
+                numberInfo = fetchDataFromRemote(inComingNumber)
+
+                if (numberInfo is CallResponse.Success) {
+
+                    // when get data successfully, save the data to local database
+                    CoroutineScope(Dispatchers.IO).launch {
+                        numberInfo.data?.let { remoteData ->
+                            callDao.saveCallCache(remoteData)
                         }
                     }
 
                 }
-            } catch (e: Exception) {
-                    emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
-                }
 
-                // all call data should be search in local database
-                val callData = callDao.getCallCache(number).first()
-                emit(CallResponse.Success(callData))
             }
-        }.flowOn(Dispatchers.IO)
 
-        // get phone number from flow, pass to viewModel
-        override fun getScreenCall(): StateFlow<String> = phoneNumberFlow
+        }
+    }
 
-        override suspend fun uploadCallData(call: Call): Flow<CallResponse<Call>> = flow {
+    private suspend fun fetchDataFromRemote(inComingNumber: String): CallResponse<Call?> {
+        var numberInfo: CallResponse<Call?> = CallResponse.Loading()
+        try {
+            val response = remoteDataSource.getCallData(inComingNumber)
+            response.data?.let { remoteCallData ->
 
+                when (response) {
+                    is CallResponse.Success -> {
+                        Log.i(DETECT_CALL_TAG, "searchScreenCall: success: $remoteCallData")
+                        numberInfo = CallResponse.Success(remoteCallData)
+                    }
+
+                    is CallResponse.Error -> {
+                        Log.i(DETECT_CALL_TAG, "searchScreenCall: error: ${response.message}")
+                        numberInfo = CallResponse.Error(
+                            response.message ?: UNKNOWN_ERROR,
+                            data = null
+                        )
+                    }
+
+                    is CallResponse.Loading -> {
+                        Log.i(DETECT_CALL_TAG, "searchScreenCall: loading")
+                        numberInfo = CallResponse.Loading()
+                    }
+                }
+            } ?: run {
+                numberInfo = CallResponse.Error("查無此電話資訊", data = null)
+            }
+        } catch (e: Exception) {
+            numberInfo = CallResponse.Error(e.message ?: UNKNOWN_ERROR, data = null)
+        }
+
+        return numberInfo
+    }
+
+
+    // get phone number from flow, pass to viewModel
+    override suspend fun getSearchResponse(): StateFlow<CallResponse<Call?>> {
+        return flow {
+            emit(_phoneSearchResponse )
+        }.stateIn(CoroutineScope(Dispatchers.IO))
+    }
+    override suspend fun uploadCallData(call: Call): CallResponse<Call?> {
+        var uploadResponse: CallResponse<Call?> = CallResponse.Loading()
+        withContext(Dispatchers.IO) {
             try {
                 val response = remoteDataSource.uploadCallData(call)
 
                 if (response is CallResponse.Success) {
-
                     // when upload data successfully, save the data to local database
                     callDao.saveCallCache(call)
-                    emit(CallResponse.Success(call))
+                    uploadResponse = CallResponse.Success(response.data)
+                    return@withContext
                 } else {
                     val errorResponse = response as CallResponse.Error
-                    emit(CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR))
+                    uploadResponse = CallResponse.Error(errorResponse.message ?: UNKNOWN_ERROR)
+                    return@withContext
                 }
 
             } catch (e: Exception) {
-                emit(CallResponse.Error(e.message ?: UNKNOWN_ERROR))
+                uploadResponse = CallResponse.Error(e.message ?: UNKNOWN_ERROR)
+                return@withContext
             }
 
-
-        }.flowOn(Dispatchers.IO)
-
-
-        override fun shouldBlockCall(number: String): Boolean {
-            return false
         }
+        return uploadResponse
     }
+
+
+    override fun shouldBlockCall(number: String): Boolean {
+        return false
+    }
+}

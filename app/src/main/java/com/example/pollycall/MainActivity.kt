@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.role.RoleManager
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
@@ -12,6 +13,10 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
+import android.util.Log
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
@@ -20,9 +25,12 @@ import androidx.core.content.ContextCompat
 
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.NavHostFragment
 import com.example.pollycall.call_detect.ForegroundService
 import com.example.pollycall.databinding.ActivityMainBinding
+import com.example.pollycall.utils.Constants.Companion.CHANNEL_ID
+import com.example.pollycall.utils.Constants.Companion.DETECT_CALL_REQUEST_CODE
+import com.example.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
+
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -31,13 +39,12 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var foregroundService: ForegroundService
     private lateinit var serviceConnection: ServiceConnection
+    private lateinit var requestPermissionLauncher: ActivityResultLauncher<Array<String>>
+    private lateinit var requestRoleLauncher: ActivityResultLauncher<Intent>
+
     private val viewModel by viewModels<MainViewModel>()
     private var isBound = false
 
-    companion object {
-        const val CHANNEL_ID = "polly_call_channel"
-        const val REQUEST_CODE = 1
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,13 +52,9 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         createNotificationChannel()
-        checkCallScreeningPermission()
+        registerRoleLauncher()
+        checkPermissionAndRequestRole()
 
-        lifecycleScope.launch {
-            viewModel.inComingNumberFlow.collect { phoneNumber ->
-                viewModel.getPhoneInfo(phoneNumber)
-            }
-        }
 
         lifecycleScope.launch {
             viewModel.phoneInfoFlow.collect { phoneInfo ->
@@ -68,6 +71,26 @@ class MainActivity : AppCompatActivity() {
             bindService(intent, serviceConnection, BIND_AUTO_CREATE)
         }
     }
+
+    private fun registerRoleLauncher() {
+        requestPermissionLauncher =
+            registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+                val granted = permissions.entries.all { it.value }
+                if (granted) {
+                    checkPermissionAndRequestRole()
+                }
+            }
+
+        requestRoleLauncher =
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+                if (result.resultCode == Activity.RESULT_OK) {
+                    val intent = result.data
+                    Log.i(DETECT_CALL_TAG, "call role has be granted: $intent")
+                }
+            }
+
+    }
+
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -107,17 +130,38 @@ class MainActivity : AppCompatActivity() {
     }
 
     @SuppressLint("InlinedApi")
-    private fun checkCallScreeningPermission() {
+    private fun checkPermissionAndRequestRole() {
         if (ContextCompat.checkSelfPermission(
-                this, Manifest.permission.READ_PHONE_STATE
+                this,
+                Manifest.permission.READ_PHONE_STATE
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.ANSWER_PHONE_CALLS
+            ) != PackageManager.PERMISSION_GRANTED ||
+            ContextCompat.checkSelfPermission(
+                this,
+                Manifest.permission.CALL_PHONE
             ) != PackageManager.PERMISSION_GRANTED
         ) {
-            ActivityCompat.requestPermissions(
-                this, arrayOf(Manifest.permission.READ_PHONE_STATE,
-                    Manifest.permission.CALL_PHONE,
-                    Manifest.permission.ANSWER_PHONE_CALLS
-                    ), REQUEST_CODE)
+
+            requestPermissionLauncher.launch(
+                arrayOf(
+                    Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.ANSWER_PHONE_CALLS,
+                    Manifest.permission.CALL_PHONE
+                )
+            )
+        }else{
+            requestCallRolePermission()
         }
+    }
+
+    @SuppressLint("NewApi")
+    private fun requestCallRolePermission() {
+        val roleManager = getSystemService(ROLE_SERVICE) as RoleManager
+        val intent = roleManager.createRequestRoleIntent(RoleManager.ROLE_CALL_SCREENING)
+        requestRoleLauncher.launch(intent)
     }
 }
 
