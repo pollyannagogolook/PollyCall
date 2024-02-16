@@ -1,7 +1,6 @@
 # PollyCall
 This is a project that clones the functionality of the Whoscall. It supposed to be able to identify the caller's identity when the phone is ringing. The project is still under development.
-Currently, user can upload the strange number successfully. However, the app is not able to get the information of the strange number from the server when the phone is ringing.
-
+User can purchase the premium service by Google Billing Library.
 
 ## Use Path
 
@@ -25,6 +24,7 @@ Currently, user can upload the strange number successfully. However, the app is 
 ## Skills
 - CallScreeningService
 - ForegroundService
+- BillingClient
 - Room
 - MVVM
 - Retrofit, Moshi
