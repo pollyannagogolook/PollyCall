@@ -4,21 +4,24 @@ import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.billingclient.api.ProductDetails
 import com.pollyanna.pollycall.iap.entitlement.Credential
 import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager
 import com.pollyanna.pollycall.iap.entitlement.OemEntitlementManager.USE_CASE_IAP
 import com.pollyanna.pollycall.iap.purchase.BillingManager
 import com.pollyanna.pollycall.iap.purchase.SubscriptionRepository
+import com.pollyanna.pollycall.iap.purchase.SubscriptionRepositoryImpl
 import com.pollyanna.pollycall.utils.Constants.Companion.PRODUCT_ID
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class SubscriptionViewModel @Inject constructor(
     application: Application,
-    private var subscriptionRepository: SubscriptionRepository,
+    private var subscriptionRepository: SubscriptionRepositoryImpl,
     private var billingClient: BillingManager
 ) : AndroidViewModel(application) {
 
@@ -27,21 +30,42 @@ class SubscriptionViewModel @Inject constructor(
      * This is used to check if the user has any subscription. If [userCurrentSubscriptionFlow] gets updated,
      * should show the user the subscription screen.
      * */
-    private val _billingConnectionState = MutableStateFlow(false)
-    val billingConnectionState = _billingConnectionState
+
+    private val _productDetails = MutableStateFlow<List<ProductDetails>>(emptyList())
+    val productDetails = _productDetails
+
+    private val _purchases = subscriptionRepository.purchases
+    val purchases = _purchases
+
+    private val _enableBuyButton = MutableStateFlow(false)
+    val enableBuyButton = _enableBuyButton
 
     init {
         viewModelScope.launch {
             startBillingConnection()
-            subscriptionRepository.getSubscriptionDetail()
-            onPurchaseObserve()
+            observeProductDetails()
         }
     }
 
     private fun startBillingConnection() {
-            subscriptionRepository.startBillingConnection(){isSuccess ->
-                _billingConnectionState.value = isSuccess
+        subscriptionRepository.startBillingConnection() { isSuccess ->
+            if (!isSuccess){
+                // show error alert
             }
+        }
+    }
+
+    private fun observeProductDetails() {
+        viewModelScope.launch {
+            subscriptionRepository.productDetails.collect {
+                if (it.isNotEmpty()) {
+                    _productDetails.value = it
+                    _enableBuyButton.value = true
+                }else{
+                    // show error alert
+                }
+            }
+        }
     }
 
 
@@ -55,20 +79,14 @@ class SubscriptionViewModel @Inject constructor(
      */
     fun buy(activity: Activity) {
         viewModelScope.launch {
-            subscriptionRepository.purchaseSubscription(activity)
-        }
-    }
-
-
-    private suspend fun onPurchaseObserve() {
-        subscriptionRepository.getPurchases().collect { newPurchase ->
-            if (newPurchase.isEmpty()) {
-                return@collect
+            val productDetails = _productDetails.value.firstOrNull()
+            if (productDetails != null) {
+                subscriptionRepository.purchaseSubscription(activity, productDetails)
             }
-            OemEntitlementManager.saveCredential(Credential.Iap(PRODUCT_ID), USE_CASE_IAP)
-            OemEntitlementManager.enablePremiumFeatures(USE_CASE_IAP)
+
         }
     }
+
 
 
     override fun onCleared() {
@@ -76,7 +94,4 @@ class SubscriptionViewModel @Inject constructor(
         billingClient.terminateBillingConnection()
     }
 
-    companion object {
-        private const val MAX_CURRENT_PURCHASES_ALLOWED = 1
-    }
 }

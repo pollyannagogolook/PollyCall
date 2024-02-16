@@ -14,7 +14,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class AppModule {
     @Binds
     abstract fun provideCallRepository(repositoryImpl: PollyCallRepositoryImpl): PollyCallRepository
-    @Binds
-    abstract fun provideSubscriptionRepository(repositoryImpl: SubscriptionRepositoryImpl): SubscriptionRepository
+
 
 }

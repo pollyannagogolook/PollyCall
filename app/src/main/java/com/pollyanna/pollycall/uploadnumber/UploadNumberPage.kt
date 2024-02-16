@@ -42,7 +42,7 @@ class UploadNumberPage : Fragment() {
 
         // collect connection state
         lifecycleScope.launch {
-            subscriptionViewModel.billingConnectionState.collect { connectionState ->
+            subscriptionViewModel.enableBuyButton.collect { connectionState ->
                 if (connectionState) {
                     binding.premiumBtn.visibility = View.VISIBLE
                 } else {
@@ -121,16 +121,6 @@ class UploadNumberPage : Fragment() {
             subscriptionViewModel.buy(requireActivity())
         }
 
-//        lifecycleScope.launch {
-//            subscriptionViewModel.showLottie.collect { showLottie ->
-//                if (showLottie) {
-//                    binding.successAnimation.visibility = View.VISIBLE
-//                    binding.successAnimation.playAnimation()
-//                } else {
-//                    binding.successAnimation.visibility = View.INVISIBLE
-//                }
-//            }
-//        }
 
 
         return binding.root

@@ -34,7 +34,7 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
 
     // New Subscription ProductDetails
     private val _productWithProductDetails =
-        MutableStateFlow<Map<String, ProductDetails>>(emptyMap())
+        MutableStateFlow<List<ProductDetails>>(emptyList())
     val productWithProductDetails = _productWithProductDetails.asStateFlow()
 
     // Current Purchases
@@ -197,24 +197,13 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
 
         when (responseCode) {
             BillingClient.BillingResponseCode.OK -> {
-
-                var newMap = emptyMap<String, ProductDetails>()
-                if (productDetailsList.isNotEmpty()) {
-                    newMap = productDetailsList.associateBy { it.productId }
-                } else {
-                    Log.e(
-                        IAP_TAG,
-                        "onProductDetailsResponse: " +
-                                "Found null or empty ProductDetails. " +
-                                "Check to see if the Products you requested are correctly " +
-                                "published in the Google Play Console."
-                    )
-                }
-                _productWithProductDetails.value = newMap
+                _productWithProductDetails.value = productDetailsList
                 Log.i(IAP_TAG, "Product details updated: ${_productWithProductDetails.value}")
             }
 
             else -> {
+                // Handle any other error codes.
+                _productWithProductDetails.value = emptyList()
                 Log.e(IAP_TAG, "Error retrieving product details: $debugMessage")
             }
         }

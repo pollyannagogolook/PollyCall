@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.StateFlow
  * */
 interface SubscriptionRepository {
     fun startBillingConnection(isSuccessCallback: (Boolean) -> Unit)
-    suspend fun getSubscriptionDetail()
-    fun getPurchases(): Flow<List<Purchase>>
+//    suspend fun getSubscriptionDetail()
+//    fun getPurchases(): Flow<List<Purchase>>
     suspend fun purchaseSubscription(activity: Activity)
     suspend fun terminateBillingConnection()
 
