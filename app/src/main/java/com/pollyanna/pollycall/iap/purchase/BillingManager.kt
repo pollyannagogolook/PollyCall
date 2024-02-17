@@ -106,20 +106,24 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
     fun queryPurchases() {
         if (!billingClient.isReady) {
             Log.e(IAP_TAG, "Billing Client not ready")
+            return
         }
         // Query for existing subscription products that have been purchased.
-
         billingClient.queryPurchasesAsync(
             QueryPurchasesParams.newBuilder()
-                .setProductType(BillingClient.ProductType.SUBS).build()
-        ) { billingResult, purchaseList ->
+                .setProductType(BillingClient.ProductType.SUBS)
+                .build()
+
+        )
+        { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                Log.i(IAP_TAG, "response of queryPurchases: ${billingResult.responseCode}")
                 if (purchaseList.isNotEmpty()) {
                     _purchases.value = purchaseList
+                    Log.i(IAP_TAG, "Purchases: $purchaseList")
                 } else {
                     _purchases.value = emptyList()
                 }
-                Log.i(IAP_TAG, "Querying purchases: $purchaseList")
             } else {
                 Log.e(IAP_TAG, "Error querying purchases: ${billingResult.debugMessage}")
             }
