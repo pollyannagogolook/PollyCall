@@ -23,11 +23,9 @@ class SubscriptionRepository @Inject constructor(
         billingManager.startBillingConnection(isSuccessCallback)
     }
 
-
     fun terminateBillingConnection() {
         billingManager.terminateBillingConnection()
     }
-
 
 
     // call billing client to purchase subscription

@@ -5,6 +5,7 @@
 
     <data>
 
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -83,20 +84,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </RadioGroup>
-        <Button
-            android:id="@+id/premium_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:text="Get Premium"
-            android:translationZ="10dp"
-            android:padding="@dimen/standard_dimen"
-            android:layout_marginBottom="@dimen/standard_dimen"
-            android:background="@color/background"
-            android:textColor="@color/primary"
-            app:layout_constraintBottom_toTopOf="@id/submit_button"
-            />
 
         <Button
             android:id="@+id/submit_button"
@@ -109,7 +96,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
-
 
         <com.airbnb.lottie.LottieAnimationView
             android:id="@+id/success_animation"

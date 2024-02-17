@@ -29,7 +29,7 @@ import kotlinx.coroutines.launch
 class UploadNumberPage : Fragment() {
 
     private val uploadNumberViewModel by viewModels<UploadNumberViewModel>()
-    private val subscriptionViewModel by viewModels<SubscriptionViewModel>()
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -39,25 +39,6 @@ class UploadNumberPage : Fragment() {
         var stangeNumber = ""
         var numberOwner = ""
         var isScam = false
-
-        // collect connection state
-        lifecycleScope.launch {
-            subscriptionViewModel.enableBuyButton.collect { connectionState ->
-                if (connectionState) {
-                    binding.premiumBtn.visibility = View.VISIBLE
-                } else {
-                    binding.premiumBtn.visibility = View.INVISIBLE
-                }
-            }
-        }
-
-
-        // collect available products to sale flow
-        lifecycleScope.launch {
-            subscriptionViewModel.buy(
-                activity = requireActivity()
-            )
-        }
 
 
 
@@ -115,11 +96,6 @@ class UploadNumberPage : Fragment() {
             uploadNumberViewModel.uploadNumber(submittedCall)
         }
 
-        // handle the subscription
-        binding.premiumBtn.setOnClickListener {
-            Log.i(IAP_TAG, "onCreateView: premium button clicked")
-            subscriptionViewModel.buy(requireActivity())
-        }
 
 
 

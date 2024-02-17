@@ -56,12 +56,14 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
         billingClient.startConnection(object : BillingClientStateListener {
             override fun onBillingServiceDisconnected() {
                 // if the connection is lost, try to restart the connection
+                Log.i(IAP_TAG, "Billing Service Disconnected")
                 isSuccessCallback(false)
                 startBillingConnection(isSuccessCallback)
             }
 
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
+                    Log.i(IAP_TAG, "Billing response OK")
                     queryPurchases()
                     queryProductDetails()
                     isSuccessCallback(true)
@@ -108,7 +110,8 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
         // Query for existing subscription products that have been purchased.
 
         billingClient.queryPurchasesAsync(
-            QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
+            QueryPurchasesParams.newBuilder()
+                .setProductType(BillingClient.ProductType.SUBS).build()
         ) { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                 if (purchaseList.isNotEmpty()) {
@@ -201,7 +204,8 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
             else -> {
                 // Handle any other error codes.
                 _productWithProductDetails.value = emptyList()
-                Log.e(IAP_TAG, "Error retrieving product details: $debugMessage")
+                Log.e(IAP_TAG, "Error retrieving product details: $debugMessage, $responseCode")
+                queryProductDetails()
             }
         }
     }

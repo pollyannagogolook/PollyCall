@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/uploadNumberPage">
+    app:startDestination="@id/loginPage">
 
     <fragment
         android:id="@+id/uploadNumberPage"
@@ -11,8 +11,12 @@
         android:label="fragment_upload_number_page"
         tools:layout="@layout/fragment_upload_number_page" />
     <fragment
-        android:id="@+id/subscriptionPage"
-        android:name="com.pollyanna.pollycall.SubscriptionPage"
-        android:label="fragment_subscription_page"
-        tools:layout="@layout/fragment_subscription_page" />
+        android:id="@+id/loginPage"
+        android:name="com.pollyanna.pollycall.login.LoginPage"
+        android:label="LoginPage" >
+        <action
+            android:id="@+id/action_loginPage_to_uploadNumberPage"
+            app:destination="@id/uploadNumberPage" />
+    </fragment>
+
 </navigation>

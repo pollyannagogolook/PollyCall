@@ -6,7 +6,7 @@ import androidx.room.Database
 import androidx.room.Room
 import com.pollyanna.pollycall.data.Call
 
-@Database(entities = [Call::class], version = 1)
+@Database(entities = [Call::class], version = 1, exportSchema = false)
 abstract class CallDatabase : RoomDatabase() {
     abstract fun callDao(): CallDao
 
