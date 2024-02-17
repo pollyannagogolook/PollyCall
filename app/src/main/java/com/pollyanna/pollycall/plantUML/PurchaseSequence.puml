@@ -1,30 +1,7 @@
 @startuml
 'https://plantuml.com/sequence-diagram
-UploadNumberPage -> SubscriptionViewModel: onCreate()
 
-'initiate billing client connection
-SubscriptionViewModel ->  SubscriptionRepository: init()
-SubscriptionRepository -> BillingClientManager: startConnection()
-
-activate BillingClientManager
-BillingClientManager --> SubscriptionViewModel: callback connection status
-
-
-'query purchase and product details
-activate BillingClientManager
-BillingClientManager -> BillingClientManager: queryPurchase()
-
-BillingClientManager -> BillingClientManager: queryProductDetails()
-
-BillingClientManager --> SubscriptionViewModel: observe ProductDetails
-deactivate BillingClientManager
-
-
-
-' user can purchase subscription only if product details is not null and connection is established
-alt product details != null
-    SubscriptionViewModel --> UploadNumberPage: enable purchase button
-    UploadNumberPage -> SubscriptionViewModel: purchaseSubscription()
+LoginPage -> SubscriptionViewModel: purchaseSubscription()
 
 
 activate SubscriptionViewModel
@@ -44,13 +21,14 @@ BillingClientManager --> BillingClientManager: acknowledgePurchase()
 deactivate BillingClientManager
 
 alt responseCode == OK
-    activate SubscriptionViewModel
+
     SubscriptionViewModel -> IEntitlementManager: saveCredentials()
+    activate SubscriptionViewModel
     activate IEntitlementManager
-    SubscriptionViewModel -> IEntitlementManager: enablePremiumFeatures()
+    SubscriptionViewModel --> LoginPage: navigate to upload page
     deactivate IEntitlementManager
     deactivate SubscriptionViewModel
 end
-end
+
 
 @enduml
