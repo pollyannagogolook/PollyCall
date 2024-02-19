@@ -15,4 +15,5 @@
     <string name="login_btn_text">Login with Phone Number</string>
     <string name="premium_hint">Premium 用戶您好</string>
     <string name="product_price_text">${}/monthly</string>
+    <string name="error_title">錯誤</string>
 </resources>
