@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data
+package com.pollyanna.pollycall.data.dataclass
 
 sealed class CallResponse<out T>(
     val data: T? = null,

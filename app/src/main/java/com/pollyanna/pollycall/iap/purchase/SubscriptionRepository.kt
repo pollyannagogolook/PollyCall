@@ -1,9 +1,15 @@
 package com.pollyanna.pollycall.iap.purchase
 
 import android.app.Activity
+import android.app.Application
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
+import android.os.Build
 import android.util.Log
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
+import com.pollyanna.pollycall.di.PollyCallApplication
 import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -11,7 +17,8 @@ import javax.inject.Singleton
 
 @Singleton
 class SubscriptionRepository @Inject constructor(
-    private val billingManager: BillingManager
+    private val billingManager: BillingManager,
+    private val context: Application
 ) {
 
     // get all purchases
@@ -20,7 +27,13 @@ class SubscriptionRepository @Inject constructor(
     val productDetails: Flow<List<ProductDetails>> = billingManager.productWithProductDetails
 
     fun startBillingConnection(isSuccessCallback: (Boolean) -> Unit) {
-        billingManager.startBillingConnection(isSuccessCallback)
+        checkInternetConnection(context) { hasInternet ->
+            if (hasInternet) {
+                billingManager.startBillingConnection(isSuccessCallback)
+            } else {
+                isSuccessCallback(false)
+            }
+        }
     }
 
     fun terminateBillingConnection() {
@@ -34,6 +47,21 @@ class SubscriptionRepository @Inject constructor(
         productDetails?.let {
             Log.i(IAP_TAG, "repository purchaseSubscription and productDetails is not null")
             billingManager.purchaseSubscription(activity, it)
+        }
+    }
+
+
+    // check internet connection
+    private fun checkInternetConnection(context: Context, hasInternet: (Boolean) -> Unit){
+        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val network = connectivityManager.activeNetwork ?: return hasInternet(false)
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return hasInternet(false)
+        return when{
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> hasInternet(true)
+
+            activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> hasInternet(true)
+
+            else -> hasInternet(false)
         }
     }
 }

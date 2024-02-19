@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data
+package com.pollyanna.pollycall.data.dataclass
 
 import android.os.Parcelable
 import androidx.room.ColumnInfo

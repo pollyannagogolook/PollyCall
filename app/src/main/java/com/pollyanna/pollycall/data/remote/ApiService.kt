@@ -1,6 +1,6 @@
 package com.pollyanna.pollycall.data.remote
 
-import com.pollyanna.pollycall.data.Call
+import com.pollyanna.pollycall.data.dataclass.Call
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
 import retrofit2.http.GET

@@ -1,8 +1,8 @@
 package com.pollyanna.pollycall.data.remote
 
 import android.util.Log
-import com.pollyanna.pollycall.data.Call
-import com.pollyanna.pollycall.data.CallResponse
+import com.pollyanna.pollycall.data.dataclass.Call
+import com.pollyanna.pollycall.data.dataclass.CallResponse
 import javax.inject.Inject
 
 class PollyCallRemoteDataSource @Inject constructor(private val service: ApiService, ) {

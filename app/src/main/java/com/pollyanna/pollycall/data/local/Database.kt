@@ -4,7 +4,7 @@ import android.content.Context
 import androidx.room.RoomDatabase
 import androidx.room.Database
 import androidx.room.Room
-import com.pollyanna.pollycall.data.Call
+import com.pollyanna.pollycall.data.dataclass.Call
 
 @Database(entities = [Call::class], version = 1, exportSchema = false)
 abstract class CallDatabase : RoomDatabase() {

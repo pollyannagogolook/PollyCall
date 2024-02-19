@@ -1,7 +1,6 @@
 package com.pollyanna.pollycall.uploadnumber
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -10,11 +9,9 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.pollyanna.pollycall.R
-import com.pollyanna.pollycall.data.Call
-import com.pollyanna.pollycall.data.CallResponse
-import com.pollyanna.pollycall.iap.SubscriptionViewModel
+import com.pollyanna.pollycall.data.dataclass.Call
+import com.pollyanna.pollycall.data.dataclass.CallResponse
 import com.pollyanna.pollycall.databinding.FragmentUploadNumberPageBinding
-import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch

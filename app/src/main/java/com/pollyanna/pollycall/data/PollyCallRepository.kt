@@ -1,7 +1,7 @@
 package com.pollyanna.pollycall.data
 
-import com.pollyanna.pollycall.data.Call
-import com.pollyanna.pollycall.data.CallResponse
+import com.pollyanna.pollycall.data.dataclass.Call
+import com.pollyanna.pollycall.data.dataclass.CallResponse
 import kotlinx.coroutines.flow.Flow
 
 interface PollyCallRepository {

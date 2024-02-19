@@ -10,29 +10,31 @@ import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.pollyanna.pollycall.R
 import com.pollyanna.pollycall.databinding.FragmentLoginBinding
-import com.pollyanna.pollycall.iap.SubscriptionViewModel
 import com.pollyanna.pollycall.utils.Constants
+import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 
 @AndroidEntryPoint
 class LoginPage : Fragment() {
-    private val subscriptionViewModel by viewModels<SubscriptionViewModel>()
+    private val loginViewModel by viewModels<LoginViewModel>()
     @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val binding = FragmentLoginBinding.inflate(inflater)
-        binding.viewModel = subscriptionViewModel
+        binding.viewModel = loginViewModel
+
+
 
         // collect connection state
         lifecycleScope.launch {
-            subscriptionViewModel.productPrice.collectLatest { productPrice ->
+            loginViewModel.productPrice.collectLatest { productPrice ->
                 if (productPrice?.isNotEmpty() == true) {
                     binding.premiumBtn.text = productPrice + "/ monthly"
                     binding.premiumBtn.visibility = View.VISIBLE
@@ -43,7 +45,7 @@ class LoginPage : Fragment() {
 
         // collect available products to sale flow
         lifecycleScope.launch {
-            subscriptionViewModel.buy(
+            loginViewModel.buy(
                 activity = requireActivity()
             )
         }
@@ -52,12 +54,12 @@ class LoginPage : Fragment() {
         // handle the subscription
         binding.premiumBtn.setOnClickListener {
             Log.i(Constants.IAP_TAG, "onCreateView: premium button clicked")
-            subscriptionViewModel.buy(requireActivity())
+            loginViewModel.buy(requireActivity())
         }
 
         // if the user is a subscription user, navigate to upload page
         lifecycleScope.launch {
-            subscriptionViewModel.showPremiumFeatures.collect { showPremiumFeatures ->
+            loginViewModel.showPremiumFeatures.collect { showPremiumFeatures ->
                 if (showPremiumFeatures) {
                     Log.i(Constants.IAP_TAG, "onCreateView: user is a subscription user")
                     // navigate to upload page
@@ -65,6 +67,24 @@ class LoginPage : Fragment() {
                     navController.navigate(LoginPageDirections.actionLoginPageToUploadNumberPage())
                 }
             }
+        }
+
+        // if there is an error, navigate the error dialog
+        lifecycleScope.launch{
+            loginViewModel.errorText.collect{errorMessage ->
+                    val action = errorMessage?.let {
+                        LoginPageDirections.actionLoginPageToErrorDialogPage(
+                            it
+                        )
+                    }
+                if (action != null) {
+                    findNavController().navigate(action)
+                    loginViewModel.terminateBillingConnection()
+                }
+                    loginViewModel.removeErrorMsg()
+                }
+
+
         }
 
         return binding.root

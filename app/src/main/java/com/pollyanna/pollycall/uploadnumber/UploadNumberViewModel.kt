@@ -3,8 +3,8 @@ package com.pollyanna.pollycall.uploadnumber
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.pollyanna.pollycall.data.Call
-import com.pollyanna.pollycall.data.CallResponse
+import com.pollyanna.pollycall.data.dataclass.Call
+import com.pollyanna.pollycall.data.dataclass.CallResponse
 import com.pollyanna.pollycall.data.PollyCallRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

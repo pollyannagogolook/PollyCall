@@ -1,4 +1,4 @@
-package com.pollyanna.pollycall.data
+package com.pollyanna.pollycall.data.dataclass
 
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
