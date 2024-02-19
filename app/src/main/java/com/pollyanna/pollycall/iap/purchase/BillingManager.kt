@@ -117,13 +117,12 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
         )
         { billingResult, purchaseList ->
             if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                Log.i(IAP_TAG, "response of queryPurchases: ${billingResult.responseCode}")
                 if (purchaseList.isNotEmpty()) {
                     _purchases.value = purchaseList
-                    Log.i(IAP_TAG, "Purchases: $purchaseList")
                 } else {
                     _purchases.value = emptyList()
                 }
+                Log.i(IAP_TAG, "Purchases: $purchaseList")
             } else {
                 Log.e(IAP_TAG, "Error querying purchases: ${billingResult.debugMessage}")
             }
@@ -164,6 +163,7 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
             for (purchase in purchases) {
                 acknowledgePurchase(purchase)
             }
+            queryPurchases()
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             Log.e(IAP_TAG, "Error purchasing: ${billingResult.debugMessage}")
         }
