@@ -1,33 +1,82 @@
 @startuml
 'https://plantuml.com/sequence-diagram
+'observe value
 
-LoginPage -> SubscriptionViewModel: purchaseSubscription()
+LoginPage -> LoginViewModel: observeShowPremiumFeatures()
+LoginPage -> LoginViewModel: observeErrorMessage()
+LoginViewModel -> SubscriptionRepository: observePurchases()
+activate LoginViewModel
+activate SubscriptionRepository
+SubscriptionRepository -> BillingClientManager: observePurchases()
+deactivate SubscriptionRepository
+deactivate LoginViewModel
+
+LoginPage -> LoginPage: click purchase button
+
+activate LoginPage
+LoginPage -> LoginViewModel: purchaseSubscription()
 
 
-activate SubscriptionViewModel
-SubscriptionViewModel -> SubscriptionRepository: purchaseSubscription()
+activate LoginViewModel
+LoginViewModel -> SubscriptionRepository: purchaseSubscription()
+
 activate SubscriptionRepository
 SubscriptionRepository -> BillingClientManager: purchaseSubscription()
-deactivate SubscriptionRepository
-activate BillingClientManager
-BillingClientManager -> BillingClientManager: launchBillingFlow()
-deactivate BillingClientManager
 
-BillingClientManager --> BillingClientManager: onPurchasesUpdated()
-activate BillingClientManager
-BillingClientManager -->  SubscriptionViewModel: observe Purchases
-deactivate SubscriptionRepository
-BillingClientManager --> BillingClientManager: acknowledgePurchase()
-deactivate BillingClientManager
 
+activate BillingClientManager
+BillingClientManager -> BillingClient: launchBillingFlow()
+
+
+
+activate BillingClient
+BillingClient -> BillingClient: start billing flow
+
+activate BillingClient
+BillingClient --> BillingClient: return BillingResult
+
+deactivate BillingClient
+BillingClient --> BillingClientManager: return BillingResult
+BillingClientManager --> SubscriptionRepository: return BillingResult
+deactivate SubscriptionRepository
+
+SubscriptionRepository --> LoginViewModel: return BillingResult
+deactivate LoginViewModel
+
+BillingClient --> BillingClient: onPurchasesUpdated()
+BillingClient --> BillingClientManager: onPurchasesUpdated()
 alt responseCode == OK
+deactivate BillingClient
+activate BillingClientManager
 
-    SubscriptionViewModel -> IEntitlementManager: saveCredentials()
-    activate SubscriptionViewModel
-    activate IEntitlementManager
-    SubscriptionViewModel --> LoginPage: navigate to upload page
-    deactivate IEntitlementManager
-    deactivate SubscriptionViewModel
+BillingClientManager -->  SubscriptionRepository: update purchases
+
+SubscriptionRepository --> LoginViewModel: update purchases
+activate LoginViewModel
+deactivate SubscriptionRepository
+BillingClientManager --> BillingClient: acknowledgePurchase()
+activate BillingClient
+BillingClient --> BillingClient: return BillingResult
+BillingClient --> BillingClientManager: return BillingResult
+
+    deactivate BillingClient
+    deactivate BillingClientManager
+    deactivate BillingClientManager
+    LoginViewModel -> LoginViewModel: turn on showPremiumFeatures
+    LoginViewModel --> LoginPage:  update showPremiumFeatures
+    deactivate LoginViewModel
+    activate LoginPage
+    LoginPage --> LoginPage: navigate to upload page
+    deactivate LoginPage
+    deactivate LoginViewModel
+
+else
+LoginViewModel -> LoginViewModel:  assign error message
+activate LoginViewModel
+LoginViewModel --> LoginPage: update error message
+LoginPage--> LoginPage: show error message
+deactivate LoginViewModel
+
 end
 
 

@@ -7,6 +7,7 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import android.util.Log
+import com.android.billingclient.api.BillingResult
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.pollyanna.pollycall.di.PollyCallApplication
@@ -42,21 +43,20 @@ class SubscriptionRepository @Inject constructor(
 
 
     // call billing client to purchase subscription
-    fun purchaseSubscription(activity: Activity, productDetails: ProductDetails?) {
-        Log.i(IAP_TAG, "repository purchaseSubscription")
-        productDetails?.let {
-            Log.i(IAP_TAG, "repository purchaseSubscription and productDetails is not null")
-            billingManager.purchaseSubscription(activity, it)
-        }
+    fun purchaseSubscription(activity: Activity, productDetails: ProductDetails): BillingResult {
+
+        return billingManager.purchaseSubscription(activity, productDetails)
     }
 
 
     // check internet connection
-    private fun checkInternetConnection(context: Context, hasInternet: (Boolean) -> Unit){
-        val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    private fun checkInternetConnection(context: Context, hasInternet: (Boolean) -> Unit) {
+        val connectivityManager =
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val network = connectivityManager.activeNetwork ?: return hasInternet(false)
-        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return hasInternet(false)
-        return when{
+        val activeNetwork =
+            connectivityManager.getNetworkCapabilities(network) ?: return hasInternet(false)
+        return when {
             activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> hasInternet(true)
 
             activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> hasInternet(true)

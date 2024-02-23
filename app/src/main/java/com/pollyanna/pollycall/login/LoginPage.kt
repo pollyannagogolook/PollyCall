@@ -12,11 +12,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.pollyanna.pollycall.databinding.FragmentLoginBinding
 import com.pollyanna.pollycall.utils.Constants
-import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 
 @AndroidEntryPoint
@@ -36,7 +34,7 @@ class LoginPage : Fragment() {
         lifecycleScope.launch {
             loginViewModel.productPrice.collectLatest { productPrice ->
                 if (productPrice?.isNotEmpty() == true) {
-                    binding.premiumBtn.text = productPrice + "/ monthly"
+                    binding.premiumBtn.text = "$productPrice/ monthly"
                     binding.premiumBtn.visibility = View.VISIBLE
                 }
             }
@@ -71,7 +69,7 @@ class LoginPage : Fragment() {
 
         // if there is an error, navigate the error dialog
         lifecycleScope.launch{
-            loginViewModel.errorText.collect{errorMessage ->
+            loginViewModel.errorMsg.collect{ errorMessage ->
                     val action = errorMessage?.let {
                         LoginPageDirections.actionLoginPageToErrorDialogPage(
                             it

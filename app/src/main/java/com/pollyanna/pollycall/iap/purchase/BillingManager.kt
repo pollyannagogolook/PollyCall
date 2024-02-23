@@ -43,7 +43,6 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
 
     // Set to true when a purchase is acknowledged and false when not.
     private val _isNewPurchaseAcknowledged = MutableStateFlow(value = false)
-    val isNewPurchaseAcknowledged = _isNewPurchaseAcknowledged.asStateFlow()
 
     // Initialize the BillingClient.
     private val billingClient = BillingClient.newBuilder(context)
@@ -64,8 +63,8 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
             override fun onBillingSetupFinished(billingResult: BillingResult) {
                 if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
                     Log.i(IAP_TAG, "Billing response OK")
-                    queryPurchases()
                     queryProductDetails()
+                    queryPurchases()
                     isSuccessCallback(true)
                 } else {
                     isSuccessCallback(false)
@@ -78,7 +77,7 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
     fun purchaseSubscription(
         activity: Activity,
         productDetails: ProductDetails
-    ) {
+    ): BillingResult{
         val offerToken = productDetails.subscriptionOfferDetails?.get(0)?.offerToken
         offerToken?.let {
             Log.i(IAP_TAG, "Offer token: $offerToken")
@@ -93,12 +92,13 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
                 .setProductDetailsParamsList(productDetailsParamsList)
                 .build()
             try {
-                billingClient.launchBillingFlow(activity, billingFlowParams)
+                return billingClient.launchBillingFlow(activity, billingFlowParams)
             } catch (e: Exception) {
                 Log.e(IAP_TAG, "Error launching billing flow: ${e.message}")
                 e.throwIfDebugBuild()
+                return BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.ERROR).build()
             }
-        }
+        }?: (return BillingResult.newBuilder().setResponseCode(BillingClient.BillingResponseCode.ERROR).build())
     }
 
     // Provide information about the product to the user
@@ -163,7 +163,6 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
             for (purchase in purchases) {
                 acknowledgePurchase(purchase)
             }
-            queryPurchases()
         } else if (billingResult.responseCode == BillingClient.BillingResponseCode.USER_CANCELED) {
             Log.e(IAP_TAG, "Error purchasing: ${billingResult.debugMessage}")
         }
@@ -182,6 +181,7 @@ class BillingManager @Inject constructor(context: Application) : PurchasesUpdate
                     if (billingResult.responseCode == BillingClient.BillingResponseCode.OK
                         && purchase.purchaseState == Purchase.PurchaseState.PURCHASED
                     ) {
+                        Log.i(IAP_TAG, "Purchase acknowledged: ${purchase.purchaseState}")
                         _isNewPurchaseAcknowledged.value = true
                     }
 

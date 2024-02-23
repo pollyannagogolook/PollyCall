@@ -1,61 +1,83 @@
 @startuml
 'https://plantuml.com/class-diagram
 
-class PollyCallApplication{
-+ application: Application
+' billing manager class
+class BillingManager{
+- _productWithProductDetails: MutableStateFlow<List<ProductDetails>>
+- _purchases: MutableStateFlow<List<Purchase>>
+- _isNewPurchaseAcknowledged : MutableStateFlow<Boolean>
+
++ productWithProductDetails: StateFlow<List<ProductDetails>>
++ purchases: StateFlow<List<Purchase>>
++ isNewPurchaseAcknowledged : StateFlow<Boolean>
+
++ startBillingConnection(isSuccessCallback: (Boolean) -> Unit)
++ purchaseSubscription(activity: Activity, productWithProductDetails: ProductDetails): BillingResult
++ queryPurchases()
++ queryProductDetails()
++ onPurchaseUpdated(billingResult: BillingResult, purchases: MutableList<Purchase>?)
++ onProductDetailsResponse(billingResult: BillingResult, productDetailsList: MutableList<ProductDetails>)
 }
 
-interface SubscriptionRepository {
-    + getSubscriptionDetail(): Flow<ProductDetails?>
-    + getPurchases(): Flow<List<Purchase>>
-    + purchaseSubscription(activity: Activity)
-    + startBillingConnection()
-    + terminateBillingConnection()
- }
 
-class SubscriptionRepositoryImpl {
-+ getSubscriptionDetail: Flow<ProductDetails?>
-+ billingConnectionState: MutableStateflow<Boolean>
 
-+ getSubscriptionDetail(): Flow<ProductDetails?>
-+ getPurchases(): Flow<List<Purchase>>
-+ purchaseSubscription(activity: Activity)
-+ startBillingConnection()
+class SubscriptionRepository{
+- billingManager: BillingManager
++ purchases: Flow<List<Purchase>>
++ productDetails: Flow<List<ProductDetails>>
+
++ startBillingConnection(isSuccessCallback: (Boolean) -> Unit)
++ terminateBillingConnection()
++ purchaseSubscription(activity: Activity, productWithProductDetails: ProductDetails): BillingResult
++ checkInternetConnection(context: Context, hasInternet: (Boolean) -> Unit)
+}
+
+
+' data class ErrorMsg
+class ErrorMsg{
+- title: String
+- message: String
+}
+
+
+' LoginViewModel class (inject subscriptionRepository)
+class LoginViewModel{
+- _purchases: MutableStateFlow<List<Purchase>>
+- _productWithProductDetails: MutableStateFlow<List<ProductDetails>>
+- _showPremiumFeatures: MutableStateFlow<Boolean>
+- _productPrice: MutableStateFlow<String?>
+- _errorMsg: MutableStateFlow<ErrorMsg?>
+
++ showPremiumFeatures: StateFlow<Boolean>
++ productPrice: StateFlow<String?>
++ errorMsg: StateFlow<ErrorMsg?>
+
+- checkIsIapSubscriptionUser(isUserCallback: (Boolean) -> Unit)
+- fetchProductPrice()
+- observePurchases()
+
++ buy(activity: Activity)
++ removeErrorMsg()
 + terminateBillingConnection()
 }
 
-
-class BillingClientManager{
-
-+ context: Context
-+ productDetails: MutableStateFlow<ProductDetails?>
-+ purchases: MutableStateFlow<List<Purchase>>
-+ isNewPurchaseAcknowledged: MutableStateFlow<Boolean>
-+ billingClient: BillingClient
-
-+ startConnection(billingClientStateListener: BillingClientStateListener)
-+ purchaseSubscription(activity: Activity, productDetails: ProductDetails)
-+ queryPurchases()
-+ acknowledgePurchase(purchase: Purchase)
-+ endConnection()
-+ queryProductDetails()
-+ onPurchaseUpdated(purchase: Purchase)
-+ onProductDetailsResponse(billingResult: BillingResult, productDetailsList: List<SkuDetails>?)
+class LoginPage{
+- loginViewModel: LoginViewModel
++ observeData()
++ showErrorDialog(errorMessage: ErrorMsg)
++ navigateToHome()
 }
 
 
-class SubscriptionViewModel{
-+ currentPurchaseFlow = MutableStateFlow<Purchase?>(null)
-+ buy(activity: Activity)
-+ onCleared()
-}
+' SubscriptionRepository class (inject billingManager)
+BillingManager ..o SubscriptionRepository
+SubscriptionRepository ..* LoginViewModel
+
+LoginViewModel +.. ErrorMsg
+
+LoginPage *.. LoginViewModel
 
 
 
-BillingClientManager  -- PollyCallApplication
-SubscriptionRepository *.. BillingClientManager
-SubscriptionRepository <|.. SubscriptionRepositoryImpl
-SubscriptionViewModel ..* SubscriptionRepository
-LoginPageFragment *-- SubscriptionViewModel
 
 @enduml

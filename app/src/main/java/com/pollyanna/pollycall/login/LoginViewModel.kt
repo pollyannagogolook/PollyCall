@@ -1,11 +1,10 @@
 package com.pollyanna.pollycall.login
 
 import android.app.Activity
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.ProductDetails
 import com.android.billingclient.api.Purchase
 import com.pollyanna.pollycall.data.dataclass.ErrorMessage
@@ -17,6 +16,7 @@ import com.pollyanna.pollycall.utils.Constants.Companion.IAP_TAG
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -37,7 +37,7 @@ class LoginViewModel @Inject constructor(
     val productPrice:StateFlow<String?> = _productPrice
 
     private var _errorMsg = MutableStateFlow<ErrorMessage?>(null)
-    val errorText = _errorMsg
+    val errorMsg = _errorMsg
 
     init {
         // query purchase when the view model is created
@@ -52,11 +52,11 @@ class LoginViewModel @Inject constructor(
     }
 
     // check if the user is a subscription user, if user did not subscribe, show product details
-    private fun checkIsIapSubscriptionUser(isIapSubscriptionUser: (Boolean) -> Unit) {
+    private fun checkIsIapSubscriptionUser(isUserCallback: (Boolean) -> Unit) {
         Log.i(IAP_TAG, "startBillingConnection")
         subscriptionRepository.startBillingConnection { isSuccess ->
             if (!isSuccess) {
-                isIapSubscriptionUser(false)
+                isUserCallback(false)
                 _errorMsg.value =
                     ErrorMessage(
                         title = "連線失敗",
@@ -67,9 +67,9 @@ class LoginViewModel @Inject constructor(
             observePurchases()
 
             if (_purchases.value.isNotEmpty()) {
-                isIapSubscriptionUser(true)
+                isUserCallback(true)
             } else {
-                isIapSubscriptionUser(false)
+                isUserCallback(false)
             }
         }
     }
@@ -78,7 +78,7 @@ class LoginViewModel @Inject constructor(
     // fetch premium price
     private fun fetchProductPrice() {
         viewModelScope.launch {
-            subscriptionRepository.productDetails.collect { productDetails ->
+            subscriptionRepository.productDetails.collectLatest { productDetails ->
                 if (productDetails.isNotEmpty() || productDetails.firstOrNull() != null) {
                     _productDetails.value = productDetails
                     _productPrice.value =
@@ -86,11 +86,7 @@ class LoginViewModel @Inject constructor(
                             .subscriptionOfferDetails?.first()?.pricingPhases?.pricingPhaseList?.first()?.formattedPrice
 
                     Log.i(IAP_TAG, "Product price: ${_productPrice.value}")
-                }else{
-                    _errorMsg.value = ErrorMessage(
-                        title = "錯誤",
-                        message = "無法取得商品資訊，請稍後再試"
-                    )
+                    Log.i(IAP_TAG, "Product details: ${productDetails.first()}")
                 }
             }
         }
@@ -121,7 +117,15 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             val productDetails = _productDetails.value.firstOrNull()
             if (productDetails != null) {
-                subscriptionRepository.purchaseSubscription(activity, productDetails)
+                val billingResult = subscriptionRepository.purchaseSubscription(activity, productDetails)
+
+                if (billingResult.responseCode == BillingClient.BillingResponseCode.ERROR){
+                    _errorMsg.value = ErrorMessage(
+                        title = "購買失敗",
+                        message = "無法購買商品，請稍後再試"
+                    )
+
+                }
             }
         }
     }
