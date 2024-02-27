@@ -5,6 +5,7 @@
 
     <data>
 
+
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -114,6 +115,7 @@
             android:layout_height="match_parent"
             app:lottie_rawRes="@raw/error_lottie"
             />
+
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>
