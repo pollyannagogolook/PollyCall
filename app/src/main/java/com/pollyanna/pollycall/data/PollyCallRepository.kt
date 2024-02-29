@@ -103,9 +103,8 @@ class PollyCallRepository @Inject constructor(
     }
 
 
-    suspend fun uploadCallData(call: Call) = flow{
+    suspend fun uploadCallData(call: Call) = flow {
         var uploadResponse: CallResponse<Call?> = CallResponse.Loading()
-
         try {
             val response = remoteDataSource.uploadCallData(call)
 
@@ -120,6 +119,10 @@ class PollyCallRepository @Inject constructor(
                 emit(uploadResponse)
             }
 
+            if (call.isScam){
+                callDao.saveScamCallCache(call)
+            }
+
         } catch (e: Exception) {
             uploadResponse = CallResponse.Error(e.message ?: UNKNOWN_ERROR)
             emit(uploadResponse)
@@ -128,6 +131,8 @@ class PollyCallRepository @Inject constructor(
     }.flowOn(Dispatchers.IO)
 
     fun shouldBlockCall(number: String): Boolean {
+
+
         return false
     }
 }
