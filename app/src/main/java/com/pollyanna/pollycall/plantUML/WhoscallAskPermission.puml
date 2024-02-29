@@ -1,0 +1,31 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+WhoscallCompatActivity -> WhoscallCompatActivity: onResume()
+activate WhoscallCompatActivity
+
+WhoscallCompatActivity -> WhoscallCompatActivity: doNavigation()
+WhoscallCompatActivity -> PreloadUtils: shouldHandlePreloadTasks()
+
+' if all permissions are granted, only request missing permissions directly
+alt PermissionUtils.hasRequiredPermissionGroups() && !PermissionUtils.hasRequiredPermissions()
+PreloadUtils -> ActivityCompat: requestPermissions()
+activate ActivityCompat
+ActivityCompat -> ActivityCompat: requestPermissions()
+ActivityCompat --> PreloadUtils: return requestPermissions()
+deactivate ActivityCompat
+
+'
+'PreloadUtils -> PermissionUtils: hasRequiredPermissionGroups()
+'activate PermissionUtils
+'PermissionUtils -> PermissionUtils: hasRequiredPermissionGroups()
+'PermissionUtils --> PreloadUtils: return hasRequiredPermissionGroups()
+'deactivate PermissionUtils
+else if !PermissionUtils.hasRequiredPermissionGroups()
+PreloadUtils -> PermissionActivity: startPermissionActivity()
+activate PermissionActivity
+PermissionActivity -> PermissionViewModel: setFunnelRecordPages()
+end
+@enduml

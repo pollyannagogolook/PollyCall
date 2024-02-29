@@ -18,12 +18,12 @@ class MainViewModel @Inject constructor(private val repository: PollyCallReposit
     val phoneInfoFlow: StateFlow<String> = _phoneInfoFlow
 
     init {
-        getPhoneInfo()
+        observePhoneInfo()
     }
 
-    private fun getPhoneInfo() {
+    private fun observePhoneInfo() {
         viewModelScope.launch {
-            repository.getSearchResponse().collect { callResponse ->
+            repository.phoneSearchResponse.collect { callResponse ->
                 if (callResponse is CallResponse.Success) {
                     callResponse.data?.let {
                         _phoneInfoFlow.value =

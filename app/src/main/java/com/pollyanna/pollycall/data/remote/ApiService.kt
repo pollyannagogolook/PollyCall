@@ -9,13 +9,13 @@ import retrofit2.http.Path
 
 interface ApiService {
 
-    @GET("/")
+    @GET("/catalog/number/{number}")
     suspend fun getCall(
-        @Path("{number}")
+        @Path("number")
         number: String
     ): Call
 
-    @POST("create/")
+    @POST("/catalog/number/create/")
     @FormUrlEncoded
     suspend fun uploadCall(
         @Field("number")number: String,

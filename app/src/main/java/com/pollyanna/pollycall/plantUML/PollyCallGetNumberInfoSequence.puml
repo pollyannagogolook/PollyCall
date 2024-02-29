@@ -1,0 +1,35 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+autonumber
+
+MainViewModel -> MainViewModel: init()
+activate MainViewModel
+MainViewModel -> MainViewModel: observePhoneInfo()
+deactivate MainViewModel
+PollyCallScreeningService -> PollyCallScreeningService: onScreenCall()
+activate PollyCallScreeningService
+PollyCallScreeningService -> PollyCallRepository: searchScreenCall()
+activate PollyCallRepository
+PollyCallRepository -> CallDao: getCallCache()
+activate CallDao
+alt CallDao has cache
+   CallDao -> PollyCallRepository: return CallResponse
+   deactivate CallDao
+   PollyCallRepository --> MainViewModel: update CallResponse
+   deactivate PollyCallRepository
+   deactivate PollyCallScreeningService
+   activate MainViewModel
+   MainViewModel --> MainActivity : update CallResponse
+   activate MainActivity
+    deactivate MainViewModel
+    MainActivity -> ForegroundService: showNotification()
+  deactivate MainActivity
+else CallDao has no cache
+PollyCallRepository ->
+
+end
+
+
+
+@enduml

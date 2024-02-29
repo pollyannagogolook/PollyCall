@@ -1,0 +1,86 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+autonumber
+WhoscallCompatActivity -> WhoscallCompatActivity: onResume()
+activate WhoscallCompatActivity
+WhoscallCompatActivity -> WhoscallCompatActivity: shouldNavigate()
+activate WhoscallCompatActivity
+
+WhoscallCompatActivity -> PermissionUtils: needOnBoardingPermissionPage()
+
+activate PermissionUtils
+' check if user: hasRequiredPermissionGroups() && needOnBoardingSetDefaultPhone() && needOnBoardingPermissionPage()
+' user must have read permission, check if user has read permission
+PermissionUtils -> PermissionUtils: hasRequiredPermissionGroups()
+activate PermissionUtils
+' users have different permission depending on the Android version
+PermissionUtils -> PermissionUtils: getRequiredPermissionGroups()
+deactivate PermissionUtils
+' if user is new & share preference has no check data, show onboarding page
+PermissionUtils -> PermissionUtils: needOnBoardingSetDefaultPhone()
+'activate PermissionUtils
+'    'check if user is new
+'    PermissionUtils -> Utils: isNewUser()
+'    activate Utils
+'    Utils -> Utils: isUserNew()
+'    Utils --> PermissionUtils: return isNewUser
+'    deactivate Utils
+'    'check if intro is completed
+'    PermissionUtils -> Utils: isIntroCompleted()
+'
+'    activate Utils
+'    Utils -> Utils: isIntroCompleted()
+'    Utils --> PermissionUtils: return isIntroCompleted
+'    deactivate Utils
+'    'check if share preference has default phone checked
+'    PermissionUtils -> PrefsRepository: getBoolean(PREF_KEY_ONBOARDING_DEFAULT_PHONE_CHECKED, false)
+'
+'    activate PrefsRepository
+'    PrefsRepository -> PrefsRepository: getBoolean(PREF_KEY_ONBOARDING_DEFAULT_PHONE_CHECKED, false)
+'    PrefsRepository --> PermissionUtils: return getBoolean(PREF_KEY_ONBOARDING_DEFAULT_PHONE_CHECKED, false)
+'    deactivate PrefsRepository
+
+    'check if callUtils is suggest to set default phone
+    PermissionUtils -> CallUtils: isSuggestedToEnableDefaultPhoneApp
+    activate CallUtils
+        CallUtils -> CallUtils: canEnableDefaultPhoneApp()
+        activate CallUtils
+        CallUtils -> OemManager: isStoreFront
+        activate OemManager
+        OemManager -> OemManager: isStoreFront()
+        OemManager --> CallUtils: return isStoreFront
+        deactivate OemManager
+        alt isStoreFront == true
+            CallUtils -> UtilsCompat: isTargetTiramisu()
+            activate UtilsCompat
+            UtilsCompat -> UtilsCompat: isTargetTiramisu()
+            UtilsCompat --> CallUtils: return isTargetTiramisu
+            deactivate UtilsCompat
+        else isStarhub == true
+            CallUtils -> UtilsInfo: hasPie()
+            activate UtilsInfo
+            UtilsInfo -> UtilsInfo: hasPie()
+            UtilsInfo --> CallUtils: return hasPie
+            deactivate UtilsInfo
+        end
+        CallUtils -> RoleManagerCompat: isRoleAvailable()
+        activate RoleManagerCompat
+        RoleManagerCompat -> RoleManagerCompat: isRoleAvailable()
+        RoleManagerCompat --> CallUtils: return isRoleAvailable
+        deactivate RoleManagerCompat
+        ' if isRoleAvailable == true & isOemProductSupported == true, return true
+        CallUtils --> CallUtils: return isRoleAvailable && isOemProductSupported
+        deactivate CallUtils
+    CallUtils -> CallUtils: isDefaultPhoneAppEnabled()
+    CallUtils --> PermissionUtils: return isSuggestedToEnableDefaultPhoneApp()
+    deactivate CallUtils
+   PermissionUtils --> WhoscallCompatActivity: return needOnBoardingSetDefaultPhone
+    deactivate PermissionUtils
+deactivate PermissionUtils
+deactivate WhoscallCompatActivity
+
+deactivate WhoscallCompatActivity
+
+
+
+@enduml

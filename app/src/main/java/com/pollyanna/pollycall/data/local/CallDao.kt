@@ -15,4 +15,10 @@ interface CallDao {
     @Query("SELECT * FROM call WHERE number = :number")
     fun getCallCache(number: String): Flow<Call?>
 
+    @Insert
+    fun saveScamCallCache(call: Call)
+
+    @Query("SELECT * FROM call WHERE is_scam = 1 ")
+    fun getScamCallCache(): Flow<List<Call>>
+
 }
