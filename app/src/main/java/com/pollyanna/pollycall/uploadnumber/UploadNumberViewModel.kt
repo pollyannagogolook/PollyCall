@@ -24,8 +24,10 @@ class UploadNumberViewModel @Inject constructor(
 
     fun uploadNumber(call: Call) {
         viewModelScope.launch {
-            _uploadResponseFlow.value = pollyRepository.uploadCallData(call)
-            Log.i(TAG, "uploadNumber: ${_uploadResponseFlow.value.message}")
+            pollyRepository.uploadCallData(call).collect { response ->
+                _uploadResponseFlow.value = response
+                Log.d(TAG, "uploadNumber: $response")
+            }
         }
     }
 }
