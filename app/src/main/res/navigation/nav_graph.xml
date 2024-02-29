@@ -7,7 +7,34 @@
 
     <fragment
         android:id="@+id/uploadNumberPage"
-        android:name="com.example.pollycall.uploadnumber.UploadNumberPage"
+        android:name="com.pollyanna.pollycall.uploadnumber.UploadNumberPage"
         android:label="fragment_upload_number_page"
         tools:layout="@layout/fragment_upload_number_page" />
+    <fragment
+        android:id="@+id/loginPage"
+        android:name="com.pollyanna.pollycall.login.LoginPage"
+        android:label="LoginPage"
+        tools:layout="@layout/fragment_login"
+        >
+        <action
+            android:id="@+id/action_loginPage_to_uploadNumberPage"
+            app:destination="@id/uploadNumberPage" />
+        <action
+            android:id="@+id/action_loginPage_to_errorDialogPage"
+            app:destination="@id/errorDialogPage" />
+    </fragment>
+    <dialog
+        android:id="@+id/errorDialogPage"
+        android:name="com.pollyanna.pollycall.login.ErrorDialogPage"
+        android:label="ErrorDialogPage"
+        tools:layout="@layout/fragment_error_dialog_page"
+        >
+        <argument
+            android:name="error_msg"
+            app:argType="com.pollyanna.pollycall.data.dataclass.ErrorMessage" />
+        <action
+            android:id="@+id/action_errorDialogPage_to_loginPage"
+            app:destination="@id/loginPage" />
+    </dialog>
+
 </navigation>

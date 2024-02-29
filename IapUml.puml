@@ -1,0 +1,43 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class UploadNumberPage{
++ viewModel: SubscriptionViewModel
+}
+UploadNumberPage *-- SubscriptionViewModel
+class SubscriptionViewModel{
+
++ billingConnectionState: Stateflow<Boolean>
++ productsForSaleFlows: Flow<MainState>
++ userCurrentSubscriptionFlow: Flow<MainState>
++ currentPurchaseFlow: Flow<List<Purchase>>
++ retrieveEligibleOffers: (offerDetails: MutableList<SubscriptionOfferDetails>, tag: String) -> Unit
++ leastPricedOfferToken: (offerDetails: MutableList<SubscriptionOfferDetails>) -> String
++ upDownGradeBillingFlowParamsBuilder(productDetails: ProductDetails, offerToken: String): BillingFlowParams
++ buy(productDetails: ProductDetails, currentPurchases: List<Purchase>?, activity: Activity, offerToken: String): Unit
+}
+
+interface SubscriptionRepository{
+
+}
+interface Collection
+
+List <|-- AbstractList
+Collection <|-- AbstractCollection
+
+Collection <|- List
+AbstractCollection <|- AbstractList
+AbstractList <|-- ArrayList
+
+class ArrayList {
+Object[] elementData
+size()
+}
+
+enum TimeUnit {
+DAYS
+HOURS
+MINUTES
+}
+
+@enduml
