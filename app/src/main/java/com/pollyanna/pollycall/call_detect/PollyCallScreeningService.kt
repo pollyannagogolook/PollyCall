@@ -33,25 +33,27 @@ class PollyCallScreeningService: CallScreeningService() {
     }
 
     override fun onScreenCall(callDetails: Call.Details) {
-        Log.i(TAG, "onScreenCall: $callDetails")
-
-        // get inComing Number
-        val inComingNumber = callDetails.handle.schemeSpecificPart
-
-        // create a response to the call, currently all calls are allowed
-        val response = CallResponse.Builder()
-            .setRejectCall(false)
-            .setDisallowCall(false)
-            .setSkipNotification(false)
-            .setSkipCallLog(false).build()
-
         serviceScope.launch {
             // search call data in data layer
-            repository.searchScreenCall(inComingNumber)
-        }
+            Log.i(TAG, "onScreenCall: $callDetails")
 
-        respondToCall(
-            callDetails, response
-        )
+            // get inComing Number
+            val incomingNumber = callDetails.handle.schemeSpecificPart
+
+            // create a response to the call, currently all calls are allowed
+            val response = CallResponse.Builder()
+                .setRejectCall(false)
+                .setDisallowCall(false)
+                .setSkipNotification(false)
+                .setSkipCallLog(false).build()
+
+
+            repository.searchScreenCall(incomingNumber)
+
+
+            respondToCall(
+                callDetails, response
+            )
+        }
     }
 }

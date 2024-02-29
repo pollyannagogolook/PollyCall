@@ -41,7 +41,7 @@ class PollyCallRepository @Inject constructor(
 
     suspend fun searchScreenCall(inComingNumber: String) = withContext(Dispatchers.IO) {
 
-
+        Log.i(DETECT_CALL_TAG, "searchScreenCall: $inComingNumber")
         var numberInfo: CallResponse<Call?> = CallResponse.Loading()
 
         // search call data in local database

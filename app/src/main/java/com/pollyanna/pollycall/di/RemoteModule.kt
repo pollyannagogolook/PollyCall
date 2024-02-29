@@ -17,7 +17,7 @@ import javax.inject.Singleton
 class RemoteModule {
 
     companion object{
-        private const val HOST_NAME = "3.25.150.64:8000/catalog/number"
+        private const val HOST_NAME = "10.0.2.2:8000"
         private const val BASE_URL = "http://$HOST_NAME/"
     }
 
