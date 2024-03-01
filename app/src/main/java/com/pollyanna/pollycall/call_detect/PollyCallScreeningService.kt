@@ -4,6 +4,7 @@ import android.telecom.Call
 import android.telecom.CallScreeningService
 import android.util.Log
 import com.pollyanna.pollycall.data.PollyCallRepository
+import com.pollyanna.pollycall.data.dataclass.CallResponse.Success
 import com.pollyanna.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -42,31 +43,27 @@ class PollyCallScreeningService : CallScreeningService() {
             // get inComing Number
             val incomingNumber = callDetails.handle.schemeSpecificPart
 
-            repository.searchScreenCall(incomingNumber)
-
-            repository.phoneSearchResponse.collect { callResponse ->
-                if (callResponse.data?.isScam == true) {
-                    Log.i(DETECT_CALL_TAG, "onScreenCall: scam call")
-                    // block the call
-                    val response =  CallResponse.Builder()
-                            .setRejectCall(true)
-                            .setDisallowCall(true)
-                            .setSkipNotification(true)
-                            .setSkipCallLog(true).build()
-                    respondToCall(callDetails, response)
-
-                } else {
-                    // create a response to the call, currently all calls are allowed
-                    val response = CallResponse.Builder()
-                            .setRejectCall(false)
-                            .setDisallowCall(false)
-                            .setSkipNotification(false)
-                            .setSkipCallLog(false).build()
-
-                    respondToCall(callDetails, response)
+            // TODO 題外話，onScreenCall 在被呼叫的五秒內若沒有執行 respondToCall，會視為 allow call，
+            //  所以 check block call 的時間不能超過五秒，這邊一般是不建議進行遠端操作的，但作業階段沒有關係
+            val shouldBlock = when (val callResponse = repository.searchScreenCall(incomingNumber)) {
+                is Success -> {
+                    Log.i(DETECT_CALL_TAG, "onScreenCall: ${callResponse.data}")
+                    callResponse.data?.isScam == true
+                }
+                else -> {
+                    Log.i(DETECT_CALL_TAG, "onScreenCall: ${callResponse}")
+                    false
                 }
             }
 
+            Log.i(DETECT_CALL_TAG, "onScreenCall: shouldBlock=$shouldBlock")
+            val response =  CallResponse.Builder()
+                .setRejectCall(shouldBlock)
+                .setDisallowCall(shouldBlock)
+                .setSkipNotification(shouldBlock)
+                .setSkipCallLog(shouldBlock)
+                .build()
+            respondToCall(callDetails, response)
         }
     }
 }

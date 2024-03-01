@@ -13,7 +13,7 @@ interface ApiService {
     suspend fun getCall(
         @Path("number")
         number: String
-    ): Call
+    ): Call?
 
     @POST("/catalog/number/create/")
     @FormUrlEncoded

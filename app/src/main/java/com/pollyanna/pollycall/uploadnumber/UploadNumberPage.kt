@@ -33,7 +33,7 @@ class UploadNumberPage : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val binding = FragmentUploadNumberPageBinding.inflate(inflater)
-        var stangeNumber = ""
+        var strangeNumber = ""
         var numberOwner = ""
         var isScam = false
 
@@ -72,7 +72,7 @@ class UploadNumberPage : Fragment() {
         }
 
         binding.phoneNumberTextInputEditText.doAfterTextChanged {
-            stangeNumber = binding.phoneNumberTextInputEditText.text.toString()
+            strangeNumber = binding.phoneNumberTextInputEditText.text.toString()
         }
 
         binding.phoneNumberOwnerInputEditText.doAfterTextChanged {
@@ -89,7 +89,7 @@ class UploadNumberPage : Fragment() {
 
         binding.submitButton.setOnClickListener {
             binding.submitButton.isClickable = false
-            val submittedCall = Call(stangeNumber, numberOwner, isScam)
+            val submittedCall = Call(strangeNumber, numberOwner, isScam)
             uploadNumberViewModel.uploadNumber(submittedCall)
         }
 
