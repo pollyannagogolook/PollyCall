@@ -8,6 +8,7 @@ import com.pollyanna.pollycall.data.dataclass.CallResponse
 import com.pollyanna.pollycall.data.PollyCallRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,15 +20,14 @@ class UploadNumberViewModel @Inject constructor(
         private const val TAG = "UploadNumberViewModel"
     }
 
-    private var _uploadResponseFlow = MutableStateFlow<CallResponse<Call?>>(CallResponse.Loading())
-    val uploadResponseFlow = _uploadResponseFlow
+    private var _uploadResponseFlow = MutableStateFlow<CallResponse>(CallResponse.Loading)
+    val uploadResponseFlow = _uploadResponseFlow.asStateFlow()
 
     fun uploadNumber(call: Call) {
         viewModelScope.launch {
-            pollyRepository.uploadCallData(call).collect { response ->
-                _uploadResponseFlow.value = response
-                Log.d(TAG, "uploadNumber: $response")
-            }
+            val response = pollyRepository.uploadCallData(call)
+            _uploadResponseFlow.value = response
+            Log.d(TAG, "uploadNumber: $response")
         }
     }
 }
