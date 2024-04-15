@@ -1,0 +1,88 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class Call {
+<<data>>
++ phoneNumber: String
++ owner: String
++ isScam: Boolean
+}
+
+interface CallDao {
++ saveCallCache(call: Call))
++ getCallCache(number: String)
++ saveScamCallCache(call: Call)
++ getScamCallCache()
+}
+
+abstract class CallDatabase {
++ buildDatabase(context: Context)
+}
+
+class DatabaseModule{
++ provideAppDatabase(context: Context): CallDatabase
++ provideCallDao(appDatabase: CallDatabase): CallDao
+@Module
+}
+
+class PollyCallLocalDataSource {
++ getCallData(number: String)
+}
+
+class PollyCallRemoteDataSource {
++ getCallData(number: String)
++ uploadCallData(call: Call)
+}
+
+interface ApiService {
++ getCall(number: String)
++ uploadCallData(number: String, owner: String, isScam: Boolean): Call
+}
+
+class RemoteModule {
++ provideRetrofit(): Retrofit
++ provideOkHttpClient(): OkHttpClient
++ provideMoshi(): Moshi
++ provideApiService(retrofit: Retrofit): ApiService
+@Module
+}
+
+class PollyCallRepository {
++ searchScreenCall (incomingNumber: String)
++ uploadCallData(call: Call)
+}
+
+class PollyCallScreeningService {
++ onScreenCall(callDetails: Call.Details)
++ onRespondCall
+}
+
+class MainViewModel {
++ observePhoneInfo()
+}
+
+class MainActivity {
++ createNotificationChannel()
++ registerRoleLauncher()
++ checkPermissionAndRequestRole()
++ sendNotification(phoneNumber: String)
+}
+
+
+RemoteModule ..|> ApiService
+
+DatabaseModule ..> CallDatabase
+DatabaseModule ..|> CallDao
+
+CallDao ..|> Call
+MainViewModel o-- PollyCallRepository
+MainActivity *-- MainViewModel
+
+PollyCallScreeningService o-- PollyCallRepository
+
+PollyCallLocalDataSource o-- DatabaseModule
+PollyCallRemoteDataSource o-- RemoteModule
+PollyCallRemoteDataSource --o PollyCallRepository
+PollyCallLocalDataSource --o PollyCallRepository
+
+@enduml
