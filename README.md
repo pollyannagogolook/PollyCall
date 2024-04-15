@@ -6,11 +6,8 @@ In this project, I execute the backend in the AWS EC2 instance and MySQL with th
 
 ## Use Path
 
-### Upload the strange number to the server
-<img width="743" alt="截圖 2024-01-28 上午9 51 44" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/c904edf5-406f-45bc-87dc-370454cc30e8">
-
-### get information of the strange number from the server when the phone is ringing
-<img width="630" alt="screenshot_polly_call.png" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/d881800f-1786-487f-b56d-45a04494bed4">
+- [x] Upload the strange number to the server
+- [x] get information of the strange number from the server when the phone is ringing
 
 ## Architecture
 <img width="1150" alt="截圖 2024-04-15 上午10 41 25" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/cf7be53b-4dd5-45d7-99b6-a53235ecb549">
