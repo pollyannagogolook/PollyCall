@@ -1,34 +1,24 @@
 package com.pollyanna.pollycall
 
-import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.role.RoleManager
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.content.ServiceConnection
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.IBinder
-import android.telecom.CallScreeningService
 import android.util.Log
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.lifecycleScope
-import com.pollyanna.pollycall.call_detect.ForegroundService
-import com.pollyanna.pollycall.call_detect.PollyCallScreeningService
 import com.pollyanna.pollycall.databinding.ActivityMainBinding
 import com.pollyanna.pollycall.utils.Constants.Companion.CHANNEL_ID
 import com.pollyanna.pollycall.utils.Constants.Companion.DETECT_CALL_TAG
