@@ -13,7 +13,8 @@ In this project, I execute the backend in the AWS EC2 instance and MySQL with th
 <img width="630" alt="screenshot_polly_call.png" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/d881800f-1786-487f-b56d-45a04494bed4">
 
 ## Architecture
-![截圖 2024-04-15 上午10.36.16.png](..%2F..%2F..%2F..%2F..%2Fvar%2Ffolders%2Fbm%2Fjn8r1j857pgcyqwp_pyxwk400000gq%2FT%2FTemporaryItems%2FNSIRD_screencaptureui_h5epNq%2F%E6%88%AA%E5%9C%96%202024-04-15%20%E4%B8%8A%E5%8D%8810.36.16.png)
+<img width="1150" alt="截圖 2024-04-15 上午10 41 25" src="https://github.com/pollyannagogolook/PollyCall/assets/155519546/cf7be53b-4dd5-45d7-99b6-a53235ecb549">
+
 
 
 ## Features
